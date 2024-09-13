@@ -1,0 +1,1 @@
+A version of the Machine Scheduling Problem with Sequence-Dependent Setup Times and Tardiness Penalties. Contextualized as scheduling a factory's juice production orders while minimizing the fines paid for taking too long.
