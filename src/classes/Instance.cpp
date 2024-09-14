@@ -10,7 +10,7 @@ Instance::Instance(std::string instance_filepath) {
   std::ifstream instance_file(instance_filepath);
   std::string line;
   uint32_t line_number = 1;
-  size_t quantity_of_requests = 0;
+  this->quantity_of_requests = 0;
   this->instance_loaded = false;
 
   if (!instance_file.is_open()) {
@@ -22,28 +22,28 @@ Instance::Instance(std::string instance_filepath) {
 
     // // Get the number of requests from the first line
     if (line_number == 1) {
-      iss >> quantity_of_requests;
+      iss >> this->quantity_of_requests;
 
       // Reserve the number of elements, that way the memory will not be moved
-      this->production_times.reserve(quantity_of_requests);
-      this->delivery_time_limits.reserve(quantity_of_requests);
-      this->late_fees.reserve(quantity_of_requests);
+      this->production_times.reserve(this->quantity_of_requests);
+      this->delivery_time_limits.reserve(this->quantity_of_requests);
+      this->late_fees.reserve(this->quantity_of_requests);
     }
 
     if (line_number == 3) {
-      for (int i = 0; i < quantity_of_requests; i++) {
+      for (int i = 0; i < this->quantity_of_requests; i++) {
         iss >> this->production_times[i];
       }
     }
 
     if (line_number == 4) {
-      for (int i = 0; i < quantity_of_requests; i++) {
+      for (int i = 0; i < this->quantity_of_requests; i++) {
         iss >> this->delivery_time_limits[i];
       }
     }
 
     if (line_number == 5) {
-      for (int i = 0; i < quantity_of_requests; i++) {
+      for (int i = 0; i < this->quantity_of_requests; i++) {
         iss >> this->late_fees[i];
         late_fees[i] /= 100.0;
       }
@@ -53,7 +53,7 @@ Instance::Instance(std::string instance_filepath) {
       uint16_t current_value;
       std::vector<uint16_t> current_matrix_line;
 
-      for (int i = 0; i < quantity_of_requests; i++) {
+      for (int i = 0; i < this->quantity_of_requests; i++) {
         iss >> current_value;
         current_matrix_line.push_back(current_value);
       }
@@ -68,6 +68,8 @@ Instance::Instance(std::string instance_filepath) {
 
   this->instance_loaded = true;
 }
+
+size_t Instance::getQuantityOfRequests() { return this->quantity_of_requests; }
 
 uint16_t Instance::getProductionTime(size_t index) {
   return this->production_times[index];

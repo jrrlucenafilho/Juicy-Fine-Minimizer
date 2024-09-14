@@ -16,6 +16,8 @@ class Instance {
 public:
   Instance(std::string instance_filepath);
 
+  size_t getQuantityOfRequests();
+
   uint16_t getProductionTime(size_t index);
 
   uint16_t getDeliveryTimeLimit(size_t index);
@@ -27,6 +29,7 @@ public:
   bool isInstanceLoaded();
 
 private:
+  size_t quantity_of_requests;
   std::vector<uint16_t> production_times;
   std::vector<uint16_t> delivery_time_limits;
   std::vector<float_t> late_fees;
