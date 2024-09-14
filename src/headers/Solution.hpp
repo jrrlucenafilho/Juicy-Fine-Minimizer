@@ -17,7 +17,7 @@ public:
 
   void createSolution(Instance &instance);
 
-  float_t calculateFeeValue(float_t fee_per_minute, uint32_t conclusion_time,
+  uint32_t calculateFeeValue(uint32_t fee_per_minute, uint32_t conclusion_time,
                          uint32_t delivery_time_limit);
 
   std::vector<size_t> getSolution();
@@ -26,7 +26,7 @@ public:
 
 private:
   std::vector<size_t> fruit_order;
-  float_t solution_fee;
+  uint32_t solution_fee;
   uint32_t elapsed_time;
 };
 

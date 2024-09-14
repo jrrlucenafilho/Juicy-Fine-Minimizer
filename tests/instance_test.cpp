@@ -30,11 +30,11 @@ TEST(InstanceTest, InitializeDeliveryTimeLimitsCorrectly) {
 TEST(InstanceTest, InitializeLateFeesCorrectly) {
   Instance instance("../instances/ex_instance");
 
-  ASSERT_FLOAT_EQ(instance.getLateFee(0), 0.1);
-  ASSERT_FLOAT_EQ(instance.getLateFee(1), 0.12);
-  ASSERT_FLOAT_EQ(instance.getLateFee(2), 0.3);
-  ASSERT_FLOAT_EQ(instance.getLateFee(3), 0.15);
-  ASSERT_FLOAT_EQ(instance.getLateFee(4), 0.1);
+  ASSERT_FLOAT_EQ(instance.getLateFee(0), 10);
+  ASSERT_FLOAT_EQ(instance.getLateFee(1), 12);
+  ASSERT_FLOAT_EQ(instance.getLateFee(2), 30);
+  ASSERT_FLOAT_EQ(instance.getLateFee(3), 15);
+  ASSERT_FLOAT_EQ(instance.getLateFee(4), 10);
 }
 
 TEST(InstanceTest, InitializeTransitionTimesCorrectly) {

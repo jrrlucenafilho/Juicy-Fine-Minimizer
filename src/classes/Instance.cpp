@@ -45,7 +45,6 @@ Instance::Instance(std::string instance_filepath) {
     if (line_number == 5) {
       for (int i = 0; i < this->quantity_of_requests; i++) {
         iss >> this->late_fees[i];
-        late_fees[i] /= 100.0;
       }
     }
 

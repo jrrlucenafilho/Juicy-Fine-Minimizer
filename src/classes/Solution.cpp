@@ -20,12 +20,9 @@ void Solution::createSolution(Instance &instance) {
   this->elapsed_time = 0;
   this->fruit_order.clear();
 
-  size_t current_max_fee_index = 0;
-  float_t current_max_fee = std::numeric_limits<float_t>::min();
-
   for (int i = 0; i < instance.getQuantityOfRequests(); i++) {
     size_t current_max_fee_index = 0;
-    float_t current_max_fee = std::numeric_limits<float_t>::min();
+    uint32_t current_max_fee = std::numeric_limits<uint32_t>::min();
     uint32_t current_elapsed_time = this->elapsed_time;
 
     if (i == 0) {
@@ -73,12 +70,12 @@ void Solution::createSolution(Instance &instance) {
   }
 }
 
-float_t Solution::calculateFeeValue(float_t fee_per_minute,
-                                    uint32_t conclusion_time,
-                                    uint32_t delivery_time_limit) {
+uint32_t Solution::calculateFeeValue(uint32_t fee_per_minute,
+                                     uint32_t conclusion_time,
+                                     uint32_t delivery_time_limit) {
   return fee_per_minute * (conclusion_time - delivery_time_limit);
 }
 
 std::vector<size_t> Solution::getSolution() { return this->fruit_order; }
 
-float_t Solution::getSolutionFee() { return this->solution_fee; }
+float_t Solution::getSolutionFee() { return this->solution_fee / 100; }

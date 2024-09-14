@@ -32,7 +32,7 @@ private:
   size_t quantity_of_requests;
   std::vector<uint16_t> production_times;
   std::vector<uint16_t> delivery_time_limits;
-  std::vector<float_t> late_fees;
+  std::vector<uint16_t> late_fees;
   std::vector<std::vector<uint16_t>> transition_times;
   bool instance_loaded;
 }; // namespace Instance
