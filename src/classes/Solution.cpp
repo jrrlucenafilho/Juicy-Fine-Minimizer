@@ -16,6 +16,10 @@ void Solution::createSolution(Instance &instance) {
   if (!instance.isInstanceLoaded()) {
     throw InstanceNotLoadedException();
   }
+  this->solution_fee = 0;
+  this->elapsed_time = 0;
+  this->fruit_order.clear();
+
   size_t current_max_fee_index = 0;
   float_t current_max_fee = std::numeric_limits<float_t>::min();
 
@@ -76,3 +80,5 @@ float_t Solution::calculateFeeValue(float_t fee_per_minute,
 }
 
 std::vector<size_t> Solution::getSolution() { return this->fruit_order; }
+
+float_t Solution::getSolutionFee() { return this->solution_fee; }

@@ -22,6 +22,8 @@ public:
 
   std::vector<size_t> getSolution();
 
+  float_t getSolutionFee();
+
 private:
   std::vector<size_t> fruit_order;
   float_t solution_fee;
