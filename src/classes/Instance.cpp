@@ -1,7 +1,6 @@
 #include "Instance.hpp"
 
 #include <fstream>
-#include <iostream>
 #include <sstream>
 #include <vector>
 
@@ -55,7 +54,6 @@ Instance::Instance(std::string instance_filepath) {
       std::vector<uint16_t> current_matrix_line;
 
       for (int i = 0; i < quantity_of_requests; i++) {
-        std::cout << "[" << line_number - 7 << "][" << i << "]\n";
         iss >> current_value;
         current_matrix_line.push_back(current_value);
       }
