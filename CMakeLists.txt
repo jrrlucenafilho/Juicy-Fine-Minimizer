@@ -11,6 +11,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Generate the compilation database
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Target to copy the instances folder when needed
+add_custom_target(copy_instances
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/instances ${CMAKE_CURRENT_BINARY_DIR}/instances
+)
+
 # Generate the documentation using Doxygen
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
