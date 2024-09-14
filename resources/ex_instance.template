@@ -1,0 +1,7 @@
+quantity_of_requests
+
+array production_times
+array delivery_time_limits
+array late_fees
+
+matrix transistion_cost_matrix
