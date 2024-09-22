@@ -28,7 +28,8 @@ void Solution::createSolution(Instance &instance) {
     if (i == 0) {
       for (int j = 0; j < instance.getQuantityOfRequests(); j++) {
         float_t fee_value = this->calculateFeeValue(
-            instance.getLateFee(j), instance.getProductionTime(j),
+            instance.getLateFee(j),
+            instance.getProductionTime(j) + instance.getTransitionTime(0, j),
             instance.getDeliveryTimeLimit(j));
 
         if (fee_value >= current_max_fee) {
@@ -49,7 +50,7 @@ void Solution::createSolution(Instance &instance) {
         float_t fee_value = this->calculateFeeValue(
             instance.getLateFee(j),
             instance.getProductionTime(j) +
-                instance.getTransitionTime(this->fruit_order.back(), j) +
+                instance.getTransitionTime(this->fruit_order.back() + 1, j) +
                 this->elapsed_time,
             instance.getDeliveryTimeLimit(j));
 
@@ -58,7 +59,7 @@ void Solution::createSolution(Instance &instance) {
           current_max_fee = fee_value;
           current_elapsed_time =
               this->elapsed_time + instance.getProductionTime(j) +
-              instance.getTransitionTime(this->fruit_order.back(), j) +
+              instance.getTransitionTime(this->fruit_order.back() + 1, j) +
               this->elapsed_time;
         }
       }
@@ -78,4 +79,4 @@ uint32_t Solution::calculateFeeValue(uint32_t fee_per_minute,
 
 std::vector<size_t> Solution::getSolution() { return this->fruit_order; }
 
-float_t Solution::getSolutionFee() { return this->solution_fee / 100; }
+float_t Solution::getSolutionFee() { return this->solution_fee / 100.0; }
