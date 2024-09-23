@@ -46,7 +46,7 @@ void LocalSearchRVND(Instance& instance, Solution& curr_solution)
                 break;
         }
     
-        // If sol has improved on any of these structures,it means there might still be room for it to improve more
+        // If sol has improved on any of these structures, it means there might still be room for it to improve more
         if(has_solution_improved){
             neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
         }else{
@@ -58,7 +58,7 @@ void LocalSearchRVND(Instance& instance, Solution& curr_solution)
 int main(int argc, char* argv[])
 {
     if((argc > 2) || (argc < 2)){
-        std::cerr << "Wrong input. Please write './main <instance_name>'";
+        std::cerr << "Wrong input. Please write './main <instance_filepath>'";
         return 1;
     }
 
