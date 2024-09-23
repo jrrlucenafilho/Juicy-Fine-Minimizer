@@ -25,7 +25,7 @@ bool BestImprovementSwap(Instance& instance, Solution& curr_solution)
 }
 */
 
-// Each BestImprovement changes the solution itself and 
+// Each BestImprovement changes the solution itself and rturns as bool if the cost is lower
 void LocalSearchRVND(Instance& instance, Solution& curr_solution)
 {
     vector<int> neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};    // Iterating through vec is O(n) but n = nh structures quantity
@@ -46,7 +46,7 @@ void LocalSearchRVND(Instance& instance, Solution& curr_solution)
                 break;
         }
     
-        // If sol has improved, means there's still room for it
+        // If sol has improved, means there's still room for it to improve more
         if(has_solution_improved){
             neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
         }else{
