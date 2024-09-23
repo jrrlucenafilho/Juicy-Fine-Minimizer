@@ -1,0 +1,17 @@
+Guloso:
+-----------------
+Por enquanto:
+
+  1st teraçao pega so o tempo de fazer o suco
+  2nd iteracao: t_conclusao = (t_conclusao_do_anterior + tempo_de_transicao + t_processamento_fruta_atual - prazo)
+                              * valor_multa_por_minuto
+
+-----------------
+Solução:
+  Vector<fruta>;
+  Custo;
+
+  struct typedef fruta:
+    tipo_de_fruta (enum);
+    elapsed_time = 0;
+    valor_da_multa_atual (acumulada);
