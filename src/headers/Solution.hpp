@@ -71,6 +71,13 @@ public:
    */
   float_t getSolutionFee();
 
+  /**
+   * @brief Set the Solution Fee/cost (float)
+   * 
+   * @param new_fee 
+   */
+  void setSolutionFee(float new_fee);
+
 private:
   /**
    * @brief The vector of indices representing the solution.

@@ -80,3 +80,5 @@ uint32_t Solution::calculateFeeValue(uint32_t fee_per_minute,
 std::vector<size_t> Solution::getSolution() { return this->fruit_order; }
 
 float_t Solution::getSolutionFee() { return this->solution_fee / 100.0; }
+
+void Solution::setSolutionFee(float new_fee) {this->solution_fee = new_fee; }
