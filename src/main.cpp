@@ -27,6 +27,13 @@ bool BestImprovementOrOpt(Instance& instance, Solution& solution)   // Rick
 
 
 // Each BestImprovement changes the solution itself and rturns as bool if the cost is lower
+/**
+ * @brief Random Variant Neighborhood Descent Local Search. Checks multiple different neighborhood structures from a prebuilt solution
+ *        and only returns after none of the neighborhodd tests have lowered the solution's cost
+ * 
+ * @param instance instance object
+ * @param curr_solution pre-built solution
+ */
 void LocalSearchRVND(Instance& instance, Solution& curr_solution)
 {
     vector<int> neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};    // Iterating through vec is O(n) but n = nh structures quantity
@@ -49,7 +56,7 @@ void LocalSearchRVND(Instance& instance, Solution& curr_solution)
     
         // If sol has improved on any of these structures, it means there might still be room for it to improve more
         if(has_solution_improved){
-            neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};solution
+            neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
         }else{
             neighborhood_structures.erase(neighborhood_structures.begin() + rand_nh_num);
         }
@@ -58,12 +65,12 @@ void LocalSearchRVND(Instance& instance, Solution& curr_solution)
 
 // ILS metaheuristic func
 /**
- * @brief ILS Metaheuristic function. Run ILS M
+ * @brief ILS Metaheuristic function. Run Iterated Local Search on a greedy-algorithm-built viable solution
  * 
- * @param max_iters 
- * @param max_iters_ILS Max
+ * @param max_iters Times a solution will be built put through ILS
+ * @param max_iters_ILS Times ILS will be executed on  given viable solution
  * @param instance instance object
- * @return Solution object
+ * @return Best-of-All Solution found
  */
 Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance& instance)
 {
@@ -95,7 +102,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance& instanc
 
             // Disturbance to help solution not fall into a local best pitfall
             // Preferably disturb the curr_best_solution, disturbing from curr_iter_solution causes fluctuations in the final solution
-            // on big and heavy instances
+            // on big and heavy instances (gets always close to optimal answer, but never quite so)
             //curr_iter_solution.Disturbance(curr_best_solution) or curr_iter_solution = Disturbance(instance, curr_best_solution) //TODO
             curr_iter_counter_ILS++;
         }
