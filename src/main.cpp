@@ -49,7 +49,7 @@ void LocalSearchRVND(Instance& instance, Solution& curr_solution)
     
         // If sol has improved on any of these structures, it means there might still be room for it to improve more
         if(has_solution_improved){
-            neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
+            neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};solution
         }else{
             neighborhood_structures.erase(neighborhood_structures.begin() + rand_nh_num);
         }
@@ -57,10 +57,18 @@ void LocalSearchRVND(Instance& instance, Solution& curr_solution)
 }
 
 // ILS metaheuristic func
-Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance& instance, Solution& solution)
+/**
+ * @brief ILS Metaheuristic function. Run ILS M
+ * 
+ * @param max_iters 
+ * @param max_iters_ILS Max
+ * @param instance instance object
+ * @return Solution object
+ */
+Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance& instance)
 {
     Solution best_of_all_solution;
-    //best_of_all_solution.setFee(INFINITY);    // TODO: Gotta set it to inf (first iter)
+    best_of_all_solution.setSolutionFee(INFINITY);
 
     for(int i = 0; i < max_iters; i++){
         // First build a viable solution
@@ -129,7 +137,7 @@ int main(int argc, char* argv[])
     for(int i = 0; i < 10; i++){
         srand(static_cast<unsigned int>(time(0)));
 
-        solution = IteratedLocalSearch(max_iters, max_iters_ILS, instance, solution);
+        solution = IteratedLocalSearch(max_iters, max_iters_ILS, instance);
 
         //solution.calculateFeeValue(); //TODO: Might not be needed. Just to make sure the cost is updated as of here
         iters_costs_sum += solution.getSolutionFee();
