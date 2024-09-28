@@ -48,7 +48,6 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
                               node_to_insert);
   }
 
-
   if (curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0 <
       curr_solution.getSolutionFee()) {
     curr_solution.updateSolution(instance, copy_curr_solution);
@@ -58,14 +57,14 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
 }
 
 /*
-bool BestImprovementSwap(Instance& instance, Solution& curr_solution)
+bool BestImprovementSwap(Instance& instance, Solution& solution)   // John
 {
 
 }
 
-bool BestImprovementSwap(Instance& instance, Solution& curr_solution)
+bool BestImprovementOrOpt(Instance& instance, Solution& solution)   // Rick
 {
-
+    return true;
 }
 */
 
@@ -78,18 +77,19 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
   bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
-    int rand_nh_num = rand() % neighborhood_structures.size();
+    int rand_nh_num = rand() % neighborhood_structures.size(); // O(1)
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
-      has_solution_improved = BestImprovementSwap(instance, curr_solution);
+      // has_solution_improved = BestImprovementSwap(instance, curr_solution);
       break;
     case TWO_OPT:
       // has_solution_improved = BestImprovement2Opt(); //TODO: Change to what
       // you'll prefer for this problem
       break;
     case OR_OPT:
-      // has_solution_improved = BestImprovementOrOpt();   //TODO: here too
+      has_solution_improved =
+          BestImprovementOrOpt(instance, curr_solution); // TODO: here too
       break;
     }
 
@@ -104,9 +104,62 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
   }
 }
 
-int main(int argc, char *argv[]) {
-  srand(time(NULL));
+// ILS metaheuristic func
+Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
+                             Instance &instance, Solution &solution) {
+  Solution best_of_all_solution;
+  // best_of_all_solution.setFee(INFINITY);    // TODO: Gotta set it to inf
+  // (first iter)
 
+  for (int i = 0; i < max_iters; i++) {
+    // First build a viable solution
+    Solution curr_iter_solution;
+    Solution curr_best_solution;
+
+    curr_iter_solution.createSolution(instance);
+    curr_best_solution = curr_iter_solution; // In the beginning, first sol is
+                                             // currently the best one
+
+    int curr_iter_counter_ILS = 0;
+
+    while (curr_iter_counter_ILS <= max_iters_ILS) {
+      // Do the local search, small modifs to current iteration's solution
+      LocalSearchRVND(instance, curr_iter_solution);
+
+      // Compare curr iter's solution post-local-search to current
+      // all-ILS-up-to-now execs best solution If it's lower, make it the new
+      // best solution and restart ILS Same logic as the RVND. If it's improved
+      // within current ILS, it has more room to improve Means it only doesn't
+      // become the new best if it doesn't improve AT ALL once in all
+      // max_iters_ILS execs
+      if (curr_iter_solution.getSolutionFee() <
+          curr_best_solution.getSolutionFee()) {
+        curr_best_solution = curr_iter_solution;
+        curr_iter_counter_ILS = 0;
+      }
+
+      // Disturbance to help solution not fall into a local best pitfall
+      // Preferably disturb the curr_best_solution, disturbing from
+      // curr_iter_solution causes fluctuations in the final solution on big and
+      // heavy instances
+      // curr_iter_solution.Disturbance(curr_best_solution) or
+      // curr_iter_solution = Disturbance(instance, curr_best_solution) //TODO
+      curr_iter_counter_ILS++;
+    }
+
+    // Now after after 1 full ILS execution (Executing LocalSearchRVND()
+    // max_iters_ILS times) Check if it produced a better solution than previous
+    // ILS execution, attributing if so
+    if (curr_best_solution.getSolutionFee() <
+        best_of_all_solution.getSolutionFee()) {
+      best_of_all_solution = curr_best_solution;
+    }
+  }
+
+  return best_of_all_solution;
+}
+
+int main(int argc, char *argv[]) {
   if ((argc > 2) || (argc < 2)) {
     std::cerr << "Wrong input. Please write './main <instance_filepath>'";
     return 1;
@@ -115,7 +168,34 @@ int main(int argc, char *argv[]) {
   Instance instance(argv[1]);
   Solution solution;
 
-  solution.createSolution(instance);
+  // ILS-used vars
+  int max_iters = 50;
+  int max_iters_ILS;
+  int iters_costs_sum = 0;
 
-  std::cout << "Current Solution Fee: " << solution.getSolutionFee() << "\n";
+  // Define upper limit for ILS execs (used same rule as ILS for TSP here)
+  // TODO: Check research papers to see if there's a better rule on choosing
+  // max_iters_ILS for this specific problem
+  if (instance.getQuantityOfRequests() >= 150) {
+    max_iters_ILS = (int)instance.getQuantityOfRequests() / 2;
+  } else {
+    max_iters_ILS = (int)instance.getQuantityOfRequests();
+  }
+
+  // Doing 10 execs as specified
+  for (int i = 0; i < 10; i++) {
+    srand(static_cast<unsigned int>(time(0)));
+
+    solution =
+        IteratedLocalSearch(max_iters, max_iters_ILS, instance, solution);
+
+    // solution.calculateFeeValue(); //TODO: Might not be needed. Just to make
+    // sure the cost is updated as of here
+    iters_costs_sum += solution.getSolutionFee();
+
+    cout << "Current Solution Fee (iter " << i + 1
+         << "): " << solution.getSolutionFee() << '\n';
+  }
+
+  return 0;
 }
