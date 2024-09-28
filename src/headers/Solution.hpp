@@ -71,6 +71,12 @@ public:
    */
   float_t getSolutionFee();
 
+  void updateSolution(Instance &instance, std::vector<size_t> new_solution);
+
+  void recalculateSolution(Instance& instance);
+
+  uint32_t recalculateSolution(Instance& instance, std::vector<size_t> solution);
+
 private:
   /**
    * @brief The vector of indices representing the solution.

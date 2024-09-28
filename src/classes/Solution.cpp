@@ -80,3 +80,71 @@ uint32_t Solution::calculateFeeValue(uint32_t fee_per_minute,
 std::vector<size_t> Solution::getSolution() { return this->fruit_order; }
 
 float_t Solution::getSolutionFee() { return this->solution_fee / 100.0; }
+
+void Solution::updateSolution(Instance &instance,
+                              std::vector<size_t> new_solution) {
+  this->fruit_order = new_solution;
+
+  this->recalculateSolution(instance);
+}
+
+void Solution::recalculateSolution(Instance &instance) {
+  this->solution_fee = 0;
+  this->elapsed_time = 0;
+
+  for (size_t i = 0; i < this->fruit_order.size(); i++) {
+    if (i == 0) {
+      this->solution_fee += calculateFeeValue(
+          instance.getLateFee(this->fruit_order[0]),
+          instance.getProductionTime(this->fruit_order[0]) +
+              instance.getTransitionTime(0, this->fruit_order[0]),
+          instance.getDeliveryTimeLimit(this->fruit_order[0]));
+
+      this->elapsed_time += instance.getProductionTime(this->fruit_order[0]) +
+                            instance.getTransitionTime(0, this->fruit_order[0]);
+    }
+
+    this->solution_fee += calculateFeeValue(
+        instance.getLateFee(this->fruit_order[i]),
+        instance.getProductionTime(i) +
+            instance.getTransitionTime(this->fruit_order[i - 1],
+                                       this->fruit_order[i]) +
+            this->elapsed_time,
+        instance.getDeliveryTimeLimit(this->fruit_order[i]));
+
+    this->elapsed_time += instance.getProductionTime(this->fruit_order[i]) +
+                          instance.getTransitionTime(0, this->fruit_order[i]);
+  }
+}
+
+uint32_t Solution::recalculateSolution(Instance &instance,
+                                       std::vector<size_t> solution) {
+  uint32_t solution_fee = 0;
+  uint32_t elapsed_time = 0;
+
+  for (size_t i = 0; i < this->fruit_order.size(); i++) {
+    if (i == 0) {
+      this->solution_fee += calculateFeeValue(
+          instance.getLateFee(this->fruit_order[0]),
+          instance.getProductionTime(this->fruit_order[0]) +
+              instance.getTransitionTime(0, this->fruit_order[0]),
+          instance.getDeliveryTimeLimit(this->fruit_order[0]));
+
+      this->elapsed_time += instance.getProductionTime(this->fruit_order[0]) +
+                            instance.getTransitionTime(0, this->fruit_order[0]);
+    }
+
+    this->solution_fee += calculateFeeValue(
+        instance.getLateFee(this->fruit_order[i]),
+        instance.getProductionTime(i) +
+            instance.getTransitionTime(this->fruit_order[i - 1],
+                                       this->fruit_order[i]) +
+            this->elapsed_time,
+        instance.getDeliveryTimeLimit(this->fruit_order[i]));
+
+    this->elapsed_time += instance.getProductionTime(this->fruit_order[i]) +
+                          instance.getTransitionTime(0, this->fruit_order[i]);
+  }
+
+  return solution_fee;
+}
