@@ -14,46 +14,26 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
   return true;
 }
 
-// TODO: Optimize this function, it is a abomination performance-wise
 bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   std::vector<size_t> copy_curr_solution = curr_solution.getSolution();
-  size_t subtour_size = rand() % (instance.getQuantityOfRequests() - 1);
-  size_t subtour_begin =
-      rand() % (instance.getQuantityOfRequests() - subtour_size);
-  std::vector<size_t> nodes_removed_from_subtour;
+  bool optimized = false;
+  double curr_solution_fee = curr_solution.getSolutionFee();
 
-  size_t remove_from_subtour = rand() % subtour_size;
+  for (int i = 0; i < copy_curr_solution.size(); i++) {
+    size_t random_insert_index = rand() % (copy_curr_solution.size());
+    std::swap(copy_curr_solution[i], copy_curr_solution[random_insert_index]);
+    
+    double new_solution_fee = curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0;
 
-  while (remove_from_subtour > 0) {
-    size_t index_to_remove = rand() % subtour_size;
-
-    nodes_removed_from_subtour.push_back(
-        copy_curr_solution[subtour_begin + index_to_remove]);
-
-    copy_curr_solution.erase(copy_curr_solution.begin() + subtour_begin +
-                             index_to_remove);
-
-    subtour_size--;
-    remove_from_subtour--;
+    if (new_solution_fee < curr_solution_fee) {
+      curr_solution.updateSolution(instance, copy_curr_solution);
+      optimized = true;
+    } else {
+      std::swap(copy_curr_solution[random_insert_index], copy_curr_solution[i]);
+    }
   }
 
-  while (nodes_removed_from_subtour.size() > 0) {
-    size_t index_to_insert = rand() % copy_curr_solution.size();
-
-    size_t node_to_insert =
-        nodes_removed_from_subtour[nodes_removed_from_subtour.size() - 1];
-    nodes_removed_from_subtour.pop_back();
-
-    copy_curr_solution.insert(copy_curr_solution.begin() + index_to_insert,
-                              node_to_insert);
-  }
-
-  if (curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0 <
-      curr_solution.getSolutionFee()) {
-    curr_solution.updateSolution(instance, copy_curr_solution);
-  }
-
-  return true;
+  return optimized;
 }
 
 /*
