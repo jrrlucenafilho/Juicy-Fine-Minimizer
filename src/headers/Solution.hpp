@@ -77,6 +77,14 @@ public:
 
   uint32_t recalculateSolution(Instance& instance, std::vector<size_t> solution);
 
+  /**
+   * @brief Set the Solution Fee. OBS: Should only be used to set fee to INIFINITY in ILS's first iteration
+   * 
+   * @param new_fee new fee that'll be set to INFINITY
+   * @return uint32_t 
+   */
+  uint32_t setSolutionFee(int new_fee);
+
 private:
   /**
    * @brief The vector of indices representing the solution.

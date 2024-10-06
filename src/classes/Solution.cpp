@@ -148,3 +148,5 @@ uint32_t Solution::recalculateSolution(Instance &instance,
 
   return solution_fee;
 }
+
+  uint32_t Solution::setSolutionFee(int new_fee){ this->solution_fee = new_fee; }
