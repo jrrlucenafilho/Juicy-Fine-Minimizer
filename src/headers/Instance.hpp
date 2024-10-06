@@ -35,6 +35,8 @@ class Instance {
 public:
   /**
    * @brief Constructs an instance from a file path.
+   * 
+   * Cost Function: O(n^2)
    *
    * @param instance_filepath The path to the instance file.
    */

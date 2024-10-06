@@ -71,12 +71,11 @@ public:
    */
   float_t getSolutionFee();
 
-  /**
-   * @brief Set the Solution Fee/cost (float)
-   * 
-   * @param new_fee 
-   */
-  void setSolutionFee(float new_fee);
+  void updateSolution(Instance &instance, std::vector<size_t> new_solution);
+
+  void recalculateSolution(Instance& instance);
+
+  uint32_t recalculateSolution(Instance& instance, std::vector<size_t> solution);
 
 private:
   /**
