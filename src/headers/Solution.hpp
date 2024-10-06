@@ -71,6 +71,8 @@ public:
    */
   float_t getSolutionFee();
 
+  void setSolutionFee(uint32_t solution_fee);
+
   void updateSolution(Instance &instance, std::vector<size_t> new_solution);
 
   void recalculateSolution(Instance& instance);

@@ -81,6 +81,10 @@ std::vector<size_t> Solution::getSolution() { return this->fruit_order; }
 
 float_t Solution::getSolutionFee() { return this->solution_fee / 100.0; }
 
+void Solution::setSolutionFee(uint32_t solution_fee) {
+  this->solution_fee = solution_fee;
+}
+
 void Solution::updateSolution(Instance &instance,
                               std::vector<size_t> new_solution) {
   this->fruit_order = new_solution;
