@@ -2,8 +2,11 @@
 #include "Solution.hpp"
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
+
+enum Fruits { ORANGE, APPLE, LEMON, GRAPE, MANGO };
 
 // TODO: Change last two to what nh structures you'd prefer, may add more
 // (or_opt 2 and 3)
@@ -36,19 +39,82 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   return optimized;
 }
 
-/*
-bool BestImprovementSwap(Instance& instance, Solution& solution)   // John
+/**
+ * @brief exhaustively compares current solution against all possible 2-opt neighborhood structure movements
+ * 
+ * @param instance instance file
+ * @param solution current solution that'll be evaluated
+ * @returns is_optimized bool that indicates if solution has been optimized
+ */
+bool BestImprovement2Opt(Instance& instance, Solution& solution)
 {
+/*  Slightly more efficient way
+  // Deltas regarding cost/fee
+  double best_cost = 0;
+  double previous_cost, curr_cost, reversed_subseq_cost = 0;
+  int best_i = 0; // Iter for the leftmost point to be cut int the seq
+  int best_j = 0; // Iter for the rightmost point of the cut in the seq
 
-}
+  int conclusion_time_tracker = 0;
 
-bool BestImprovementOrOpt(Instance& instance, Solution& solution)   // Rick
-{
-    return true;
-}
+  // First cost is just the input sequence one
+  previous_cost = solution.getSolutionFee();
+
+  // Iters through the sequence element by element
+  // Beginning from the second element cause the sequence has to start from an arc at least 
+  for(int i = 1; i < (int)solution.getSolution().size(); i++){
+    // And this iters as the second point-of-cut-for-sequence-reversal
+    for(int j = i + 1; i < (int)solution.getSolution().size(); j++){
+      // Here goes the calc that gets the reversal cost for current "i -> ... -> k -> ... -> j" 2-opt-reversed sequence
+      // f' = f - (prev_i_and_j_edge_arcs_costs) + (new_i_and_j_edge_arc_costs); (inbetween costs are the same among sequences)
+      // (prev_i_and_j_edge_arcs_costs) = cost_to_transition_to_fruit + cost_to_produce_fruit + cost_to_transition_to_next_fruit
+      // TODO: Check if instance.getProductionTime()'s index is refers to the fruit's sequence position index
+
+      // Doing it like this because, at least for small 2-opt subsequences (fairly common), it's cheaper than making a copy of the solution
+      // Iterates throught the subsequence, calc'ing cost for each node as it's needed
+      for(int k = i; k <= j; k++){
+        // Get the time passed up to first element of to-be-reversed subseq
+        conclusion_time_tracker += solution.
+        reversed_subseq_cost += solution.calculateFeeValue(instance.getLateFee(solution.getSolution()[k]), instance., )
+      }
+
+      if(curr_cost < previous_cost){
+        best_cost = curr_cost;
+        best_i = i;
+        best_j = j;
+      }
+
+    }
+  }
+
+  // Actual swap if the cost/fee got better
 */
+ // Expensive but easier version
+  bool is_optimized = false;
+  Solution new_solution = solution;
+  vector<size_t> new_sequence = solution.getSolution();
 
-// Each BestImprovement changes the solution itself and rturns as bool if the cost is lower
+  // Change from first element because it's the first arc, exhaustive in that it tries every single combination
+  for(int i = 1; i < (int)instance.getQuantityOfRequests(); i++){
+    for(int j = i + 2; j < (int)instance.getQuantityOfRequests(); j++){
+      // Reverse subsequence in fruit order
+      reverse(new_sequence.begin() + i, new_sequence.begin() + j);
+
+      // Recalc cost with this sequence for new_solution
+      new_solution.recalculateSolution(instance, new_sequence);
+
+      // Compare costs, and attribute if cost is lower
+      if(new_solution.getSolutionFee() < solution.getSolutionFee()){
+        solution = new_solution;
+        is_optimized = true;
+      }
+    }
+  }
+
+  return is_optimized;
+}
+
+// Each BestImprovement changes the solution itself and returns as bool if the cost is lower
 /**
  * @brief Random Variant Neighborhood Descent Local Search. Checks multiple different neighborhood structures from a prebuilt solution
  *        and only returns after none of the neighborhodd tests have lowered the solution's cost
@@ -62,15 +128,14 @@ void LocalSearchRVND(Instance& instance, Solution& curr_solution)
     bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
-    int rand_nh_num = rand() % neighborhood_structures.size(); // O(1)
+    int rand_nh_num = 1;//rand() % neighborhood_structures.size(); // O(1)
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
       // has_solution_improved = BestImprovementSwap(instance, curr_solution);
       break;
     case TWO_OPT:
-      // has_solution_improved = BestImprovement2Opt(); //TODO: Change to what
-      // you'll prefer for this problem
+      has_solution_improved = BestImprovement2Opt(instance, curr_solution);
       break;
     case OR_OPT:
       has_solution_improved =
@@ -133,7 +198,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance& instanc
             // Disturbance to help solution not fall into a local best pitfall
             // Preferably disturb the curr_best_solution, disturbing from curr_iter_solution causes fluctuations in the final solution
             // on big and heavy instances (gets always close to optimal answer, but never quite so)
-            //curr_iter_solution.Disturbance(curr_best_solution) or curr_iter_solution = Disturbance(instance, curr_best_solution) //TODO
+            //TODO: curr_iter_solution.Disturbance(curr_best_solution) or curr_iter_solution = Disturbance(instance, curr_best_solution)
             curr_iter_counter_ILS++;
         }
 

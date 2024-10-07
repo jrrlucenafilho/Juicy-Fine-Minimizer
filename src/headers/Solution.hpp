@@ -83,7 +83,19 @@ public:
    * @param new_fee new fee that'll be set to INFINITY
    * @return uint32_t 
    */
-  uint32_t setSolutionFee(int new_fee);
+  void setSolutionFee(float new_fee);
+
+  /**
+   * @brief Returns time passed up to a fruit located in index (in solution sequence)
+   * 
+   * @param index index of fruit in solution sequence
+   * @param instance instance object
+   * @return int time passed until this fruit's been concluded being processed
+   */
+  int getConclusionTimeUpToIndex(int index, Instance& instance);
+
+  void reverseSubsequence(int index_begin, int index_end);
+  
 
 private:
   /**
@@ -94,7 +106,7 @@ private:
   /**
    * @brief The total fee of the solution.
    */
-  uint32_t solution_fee;
+  float solution_fee;
 
   /**
    * @brief The elapsed time of the solution.
