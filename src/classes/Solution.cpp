@@ -90,8 +90,6 @@ void Solution::updateSolution(Instance &instance,
   this->fruit_order = new_solution;
 
   this->recalculateSolution(instance);
-
-  std::cout << "New Cost: " << this->getSolutionFee() << "\n";
 }
 
 void Solution::recalculateSolution(Instance &instance) {

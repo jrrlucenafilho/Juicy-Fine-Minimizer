@@ -86,7 +86,6 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
     // still be room for it to improve more
     if (has_solution_improved) {
       neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
-      std::cout << "Improved! Current Cost: " << curr_solution.getSolutionFee() << "\n";
     } else {
       neighborhood_structures.erase(neighborhood_structures.begin() +
                                     rand_nh_num);
