@@ -1,4 +1,5 @@
 /.vscode
+/my_tests/
 *.exe
 
 # CMake gitignore

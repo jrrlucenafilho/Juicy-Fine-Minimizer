@@ -154,3 +154,27 @@ uint32_t Solution::recalculateSolution(Instance &instance,
 
   return solution_fee;
 }
+
+void Solution::setSolutionFee(float new_fee){ this->solution_fee = new_fee; }
+
+// Returns time passed up to a fruit located in index (in solution sequence)
+int Solution::getConclusionTimeUpToIndex(int index, Instance& instance)
+{
+  int conclusion_time = 10; // Constant first-fruit production time
+  std::vector<size_t>& sequence = this->fruit_order;
+
+  //Add up first fruit's production time
+  conclusion_time += instance.getProductionTime(sequence[0]);
+
+  for(int i = 1; i <= index; i++){
+    conclusion_time += instance.getTransitionTime(sequence[i - 1], sequence[i]);
+  }
+
+  return conclusion_time;
+}
+
+void Solution::reverseSubsequence(int index_begin, int index_end)
+{
+  reverse(fruit_order.begin() + index_begin, fruit_order.begin() + index_end);
+}
+

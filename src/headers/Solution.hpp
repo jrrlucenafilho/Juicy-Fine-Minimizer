@@ -71,13 +71,57 @@ public:
    */
   float_t getSolutionFee();
 
+  /**
+   * @brief Set the solution fee.
+   *
+   * @param solution_fee The new solution fee.
+   */
   void setSolutionFee(uint32_t solution_fee);
 
+  /**
+   * @brief Update the solution with a new path.
+   *
+   * @param instance The instance associated with the solution.
+   * @param new_solution The new vector of fruits representing the path.
+   */
   void updateSolution(Instance &instance, std::vector<size_t> new_solution);
 
-  void recalculateSolution(Instance& instance);
+  /**
+   * @brief Recalculate the solution based on the current internal path.
+   *
+   * @param instance The instance associated with the solution.
+   */
+  void recalculateSolution(Instance &instance);
 
-  uint32_t recalculateSolution(Instance& instance, std::vector<size_t> solution);
+  /**
+   * @brief Recalculate the solution with a given path.
+   *
+   * @param instance The instance associated with the solution.
+   * @param solution The vector of fruits representing the path.
+   * @return The new solution fee.
+   */
+  uint32_t recalculateSolution(Instance &instance,
+                               std::vector<size_t> solution);
+
+  /**
+   * @brief Set the Solution Fee. OBS: Should only be used to set fee to INIFINITY in ILS's first iteration
+   * 
+   * @param new_fee new fee that'll be set to INFINITY
+   * @return uint32_t 
+   */
+  void setSolutionFee(float new_fee);
+
+  /**
+   * @brief Returns time passed up to a fruit located in index (in solution sequence)
+   * 
+   * @param index index of fruit in solution sequence
+   * @param instance instance object
+   * @return int time passed until this fruit's been concluded being processed
+   */
+  int getConclusionTimeUpToIndex(int index, Instance& instance);
+
+  void reverseSubsequence(int index_begin, int index_end);
+  
 
 private:
   /**
@@ -88,7 +132,7 @@ private:
   /**
    * @brief The total fee of the solution.
    */
-  uint32_t solution_fee;
+  float solution_fee;
 
   /**
    * @brief The elapsed time of the solution.
