@@ -1,6 +1,7 @@
 #include "Instance.hpp"
 #include "Solution.hpp"
 #include <cstdlib>
+#include <experimental/filesystem>
 #include <iostream>
 
 using namespace std;
@@ -20,8 +21,11 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   double curr_solution_fee = curr_solution.getSolutionFee();
 
   for (int i = 0; i < copy_curr_solution.size(); i++) {
-    size_t random_insert_index = rand() % (copy_curr_solution.size());
-    std::swap(copy_curr_solution[i], copy_curr_solution[random_insert_index]);
+    size_t random_insert_index = rand() % (copy_curr_solution.size() - 1);
+    uint32_t value_to_change = copy_curr_solution[i];
+
+    copy_curr_solution.erase(copy_curr_solution.begin() + i);
+    copy_curr_solution.insert(copy_curr_solution.begin() + random_insert_index, value_to_change);
 
     double new_solution_fee =
         curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0;
@@ -30,7 +34,8 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
       curr_solution.updateSolution(instance, copy_curr_solution);
       optimized = true;
     } else {
-      std::swap(copy_curr_solution[random_insert_index], copy_curr_solution[i]);
+      copy_curr_solution.erase(copy_curr_solution.begin() + random_insert_index);
+      copy_curr_solution.insert(copy_curr_solution.begin() + i, value_to_change);
     }
   }
 
