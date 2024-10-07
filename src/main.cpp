@@ -15,7 +15,27 @@ enum NeighborhoodStructure { SWAP, TWO_OPT, OR_OPT };
 
 // Neighborhood structures best improvement calc
 bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
-  return true;
+    std::vector<size_t> copy_curr_solution = curr_solution.getSolution();
+    bool optimized = false;
+    double curr_solution_fee = curr_solution.getSolutionFee();
+
+    for (int i = 0; i < copy_curr_solution.size(); i++) {
+        for (int j = i + 1; j < copy_curr_solution.size(); j++) {
+            std::swap(copy_curr_solution[i], copy_curr_solution[j]);
+
+            double new_solution_fee = curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0;
+
+            if (new_solution_fee < curr_solution_fee) {
+                curr_solution.updateSolution(instance, copy_curr_solution);
+                optimized = true;
+                curr_solution_fee = new_solution_fee;
+            } else {
+                std::swap(copy_curr_solution[i], copy_curr_solution[j]);
+            }
+        }
+    }
+
+    return optimized;
 }
 
 bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
@@ -140,7 +160,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
-      // has_solution_improved = BestImprovementSwap(instance, curr_solution);
+      has_solution_improved = BestImprovementSwap(instance, curr_solution);
       break;
     case TWO_OPT:
       has_solution_improved = BestImprovement2Opt(instance, curr_solution);
