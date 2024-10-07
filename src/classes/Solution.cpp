@@ -92,6 +92,14 @@ void Solution::updateSolution(Instance &instance,
   this->recalculateSolution(instance);
 }
 
+void Solution::updateSolution(Instance &instance,
+                              std::vector<size_t> new_solution,
+                              float solution_fee) {
+  this->fruit_order = new_solution;
+
+  this->setSolutionFee(solution_fee);
+}
+
 void Solution::recalculateSolution(Instance &instance) {
   this->solution_fee = 0;
   this->elapsed_time = 0;
@@ -129,52 +137,48 @@ uint32_t Solution::recalculateSolution(Instance &instance,
 
   for (size_t i = 0; i < this->fruit_order.size(); i++) {
     if (i == 0) {
-      solution_fee += calculateFeeValue(
-          instance.getLateFee(solution[0]),
-          instance.getProductionTime(solution[0]) +
-              instance.getTransitionTime(0, solution[0]),
-          instance.getDeliveryTimeLimit(solution[0]));
+      solution_fee +=
+          calculateFeeValue(instance.getLateFee(solution[0]),
+                            instance.getProductionTime(solution[0]) +
+                                instance.getTransitionTime(0, solution[0]),
+                            instance.getDeliveryTimeLimit(solution[0]));
 
       elapsed_time += instance.getProductionTime(solution[0]) +
-                            instance.getTransitionTime(0, solution[0]);
+                      instance.getTransitionTime(0, solution[0]);
       continue;
     }
 
     solution_fee += calculateFeeValue(
         instance.getLateFee(solution[i]),
         instance.getProductionTime(i) +
-            instance.getTransitionTime(solution[i - 1],
-                                       solution[i]) +
+            instance.getTransitionTime(solution[i - 1], solution[i]) +
             this->elapsed_time,
         instance.getDeliveryTimeLimit(solution[i]));
 
     elapsed_time += instance.getProductionTime(solution[i]) +
-                          instance.getTransitionTime(0, solution[i]);
+                    instance.getTransitionTime(0, solution[i]);
   }
 
   return solution_fee;
 }
 
-void Solution::setSolutionFee(float new_fee){ this->solution_fee = new_fee; }
+void Solution::setSolutionFee(float new_fee) { this->solution_fee = new_fee; }
 
 // Returns time passed up to a fruit located in index (in solution sequence)
-int Solution::getConclusionTimeUpToIndex(int index, Instance& instance)
-{
+int Solution::getConclusionTimeUpToIndex(int index, Instance &instance) {
   int conclusion_time = 10; // Constant first-fruit production time
-  std::vector<size_t>& sequence = this->fruit_order;
+  std::vector<size_t> &sequence = this->fruit_order;
 
-  //Add up first fruit's production time
+  // Add up first fruit's production time
   conclusion_time += instance.getProductionTime(sequence[0]);
 
-  for(int i = 1; i <= index; i++){
+  for (int i = 1; i <= index; i++) {
     conclusion_time += instance.getTransitionTime(sequence[i - 1], sequence[i]);
   }
 
   return conclusion_time;
 }
 
-void Solution::reverseSubsequence(int index_begin, int index_end)
-{
+void Solution::reverseSubsequence(int index_begin, int index_end) {
   reverse(fruit_order.begin() + index_begin, fruit_order.begin() + index_end);
 }
-
