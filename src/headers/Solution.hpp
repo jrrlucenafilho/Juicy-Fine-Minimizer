@@ -121,6 +121,8 @@ public:
   int getConclusionTimeUpToIndex(int index, Instance& instance);
 
   void reverseSubsequence(int index_begin, int index_end);
+
+  void setSequence(std::vector<size_t> new_sequence){ this->fruit_order = new_sequence; }
   
 
 private:

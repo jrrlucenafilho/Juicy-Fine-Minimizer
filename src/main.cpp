@@ -8,9 +8,6 @@
 using namespace std;
 
 enum Fruits { ORANGE, APPLE, LEMON, GRAPE, MANGO };
-
-// TODO: Change last two to what nh structures you'd prefer, may add more
-// (or_opt 2 and 3)
 enum NeighborhoodStructure { SWAP, TWO_OPT, OR_OPT };
 
 // Neighborhood structures best improvement calc
@@ -116,9 +113,13 @@ bool BestImprovement2Opt(Instance& instance, Solution& solution)
   // Actual swap if the cost/fee got better
 */
  // Expensive but easier version
-  bool is_optimized = false;
-  Solution new_solution = solution;
   vector<size_t> new_sequence = solution.getSolution();
+  vector<size_t> best_sequence;
+
+  // Save first solution cost
+  double first_cost = solution.getSolutionFee();
+  double old_cost = first_cost;
+  double new_cost;
 
   // Change from first element because it's the first arc, exhaustive in that it tries every single combination
   for(int i = 1; i < (int)instance.getQuantityOfRequests(); i++){
@@ -126,18 +127,26 @@ bool BestImprovement2Opt(Instance& instance, Solution& solution)
       // Reverse subsequence in fruit order
       reverse(new_sequence.begin() + i, new_sequence.begin() + j);
 
-      // Recalc cost with this sequence for new_solution
-      new_solution.recalculateSolution(instance, new_sequence);
+      // Calculate new cost
+      new_cost = solution.recalculateSolution(instance, new_sequence);
 
-      // Compare costs, and attribute if cost is lower
-      if(new_solution.getSolutionFee() < solution.getSolutionFee()){
-        solution = new_solution;
-        is_optimized = true;
+      // Compare costs, and attribute new_cost and new_sequence if new_cost is lower
+      if(new_cost < old_cost){
+        old_cost = new_cost;
+        best_sequence = new_sequence;
       }
     }
   }
 
-  return is_optimized;
+  // After testing, change solution to the lowest cost found, if it got any lower than when the solution came in as input
+  if(old_cost < first_cost){
+    solution.setSolutionFee(solution.recalculateSolution(instance, best_sequence));
+    solution.setSequence(best_sequence);
+
+    return true;
+  }
+
+  return false;
 }
 
 // Each BestImprovement changes the solution itself and returns as bool if the cost is lower
@@ -150,9 +159,7 @@ bool BestImprovement2Opt(Instance& instance, Solution& solution)
  * @param curr_solution pre-built solution
  */
 void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
-  vector<int> neighborhood_structures = {
-      SWAP, TWO_OPT,
-      OR_OPT}; // Iterating through vec is O(n) but n = nh structures quantity
+  vector<int> neighborhood_structures = { SWAP, TWO_OPT, OR_OPT }; // Iterating through vec is O(n) but n = nh structures quantity
   bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
@@ -166,8 +173,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
       has_solution_improved = BestImprovement2Opt(instance, curr_solution);
       break;
     case OR_OPT:
-      has_solution_improved =
-          BestImprovementOrOpt(instance, curr_solution); // TODO: here too
+      has_solution_improved = BestImprovementOrOpt(instance, curr_solution);
       break;
     }
 
