@@ -1,6 +1,7 @@
 #include "Instance.hpp"
 #include "Solution.hpp"
 #include <cstdlib>
+#include <experimental/filesystem>
 #include <iostream>
 #include <algorithm>
 
@@ -23,16 +24,21 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   double curr_solution_fee = curr_solution.getSolutionFee();
 
   for (int i = 0; i < copy_curr_solution.size(); i++) {
-    size_t random_insert_index = rand() % (copy_curr_solution.size());
-    std::swap(copy_curr_solution[i], copy_curr_solution[random_insert_index]);
-    
-    double new_solution_fee = curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0;
+    size_t random_insert_index = rand() % (copy_curr_solution.size() - 1);
+    uint32_t value_to_change = copy_curr_solution[i];
+
+    copy_curr_solution.erase(copy_curr_solution.begin() + i);
+    copy_curr_solution.insert(copy_curr_solution.begin() + random_insert_index, value_to_change);
+
+    double new_solution_fee =
+        curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0;
 
     if (new_solution_fee < curr_solution_fee) {
       curr_solution.updateSolution(instance, copy_curr_solution);
       optimized = true;
     } else {
-      std::swap(copy_curr_solution[random_insert_index], copy_curr_solution[i]);
+      copy_curr_solution.erase(copy_curr_solution.begin() + random_insert_index);
+      copy_curr_solution.insert(copy_curr_solution.begin() + i, value_to_change);
     }
   }
 
@@ -116,16 +122,18 @@ bool BestImprovement2Opt(Instance& instance, Solution& solution)
 
 // Each BestImprovement changes the solution itself and returns as bool if the cost is lower
 /**
- * @brief Random Variant Neighborhood Descent Local Search. Checks multiple different neighborhood structures from a prebuilt solution
- *        and only returns after none of the neighborhodd tests have lowered the solution's cost
- * 
+ * @brief Random Variant Neighborhood Descent Local Search. Checks multiple
+ * different neighborhood structures from a prebuilt solution and only returns
+ * after none of the neighborhodd tests have lowered the solution's cost
+ *
  * @param instance instance object
  * @param curr_solution pre-built solution
  */
-void LocalSearchRVND(Instance& instance, Solution& curr_solution)
-{
-    vector<int> neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};    // Iterating through vec is O(n) but n = nh structures quantity
-    bool has_solution_improved = false;
+void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
+  vector<int> neighborhood_structures = {
+      SWAP, TWO_OPT,
+      OR_OPT}; // Iterating through vec is O(n) but n = nh structures quantity
+  bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
     int rand_nh_num = 1;//rand() % neighborhood_structures.size(); // O(1)
@@ -156,17 +164,18 @@ void LocalSearchRVND(Instance& instance, Solution& curr_solution)
 
 // ILS metaheuristic func
 /**
- * @brief ILS Metaheuristic function. Run Iterated Local Search on a greedy-algorithm-built viable solution
- * 
+ * @brief ILS Metaheuristic function. Run Iterated Local Search on a
+ * greedy-algorithm-built viable solution
+ *
  * @param max_iters Times a solution will be built put through ILS
  * @param max_iters_ILS Times ILS will be executed on  given viable solution
  * @param instance instance object
  * @return Best-of-All Solution found
  */
-Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance& instance)
-{
-    Solution best_of_all_solution;
-    best_of_all_solution.setSolutionFee(INFINITY);
+Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
+                             Instance &instance) {
+  Solution best_of_all_solution;
+  best_of_all_solution.setSolutionFee(INFINITY);
 
   for (int i = 0; i < max_iters; i++) {
     // First build a viable solution
@@ -241,7 +250,7 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < 10; i++) {
     srand(static_cast<unsigned int>(time(0)));
 
-        solution = IteratedLocalSearch(max_iters, max_iters_ILS, instance);
+    solution = IteratedLocalSearch(max_iters, max_iters_ILS, instance);
 
     // solution.calculateFeeValue(); //TODO: Might not be needed. Just to make
     // sure the cost is updated as of here
