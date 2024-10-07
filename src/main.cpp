@@ -40,22 +40,30 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   bool optimized = false;
   double curr_solution_fee = curr_solution.getSolutionFee();
 
+  std::cout << "========================\n";
   for (int i = 0; i < copy_curr_solution.size(); i++) {
-    size_t random_insert_index = rand() % (copy_curr_solution.size() - 1);
-    uint32_t value_to_change = copy_curr_solution[i];
+    for (int j = 0; j < copy_curr_solution.size() - 1; j++) { 
+      size_t reinsertion_insert_index = j;
+      uint32_t value_to_change = copy_curr_solution[i];
 
-    copy_curr_solution.erase(copy_curr_solution.begin() + i);
-    copy_curr_solution.insert(copy_curr_solution.begin() + random_insert_index, value_to_change);
+      copy_curr_solution.erase(copy_curr_solution.begin() + i);
+      copy_curr_solution.insert(copy_curr_solution.begin() + reinsertion_insert_index, value_to_change);
 
-    double new_solution_fee =
-        curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0;
+      double new_solution_fee =
+          curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0;
 
-    if (new_solution_fee < curr_solution_fee) {
-      curr_solution.updateSolution(instance, copy_curr_solution);
-      optimized = true;
-    } else {
-      copy_curr_solution.erase(copy_curr_solution.begin() + random_insert_index);
+      if (new_solution_fee < curr_solution_fee) {
+        curr_solution.updateSolution(instance, copy_curr_solution);
+
+        std::cout << new_solution_fee << " < " << curr_solution_fee << "\n";
+
+        optimized = true;
+      }
+
+      copy_curr_solution.erase(copy_curr_solution.begin() + reinsertion_insert_index);
       copy_curr_solution.insert(copy_curr_solution.begin() + i, value_to_change);
+      
+      std::cout << i << " - " << j << "\n";
     }
   }
 
