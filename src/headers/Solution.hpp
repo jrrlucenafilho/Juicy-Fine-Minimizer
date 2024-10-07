@@ -71,13 +71,37 @@ public:
    */
   float_t getSolutionFee();
 
+  /**
+   * @brief Set the solution fee.
+   *
+   * @param solution_fee The new solution fee.
+   */
   void setSolutionFee(uint32_t solution_fee);
 
+  /**
+   * @brief Update the solution with a new path.
+   *
+   * @param instance The instance associated with the solution.
+   * @param new_solution The new vector of fruits representing the path.
+   */
   void updateSolution(Instance &instance, std::vector<size_t> new_solution);
 
-  void recalculateSolution(Instance& instance);
+  /**
+   * @brief Recalculate the solution based on the current internal path.
+   *
+   * @param instance The instance associated with the solution.
+   */
+  void recalculateSolution(Instance &instance);
 
-  uint32_t recalculateSolution(Instance& instance, std::vector<size_t> solution);
+  /**
+   * @brief Recalculate the solution with a given path.
+   *
+   * @param instance The instance associated with the solution.
+   * @param solution The vector of fruits representing the path.
+   * @return The new solution fee.
+   */
+  uint32_t recalculateSolution(Instance &instance,
+                               std::vector<size_t> solution);
 
 private:
   /**
