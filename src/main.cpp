@@ -163,7 +163,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
   bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
-    int rand_nh_num = 1;//rand() % neighborhood_structures.size(); // O(1)
+    int rand_nh_num = rand() % neighborhood_structures.size(); // O(1)
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
