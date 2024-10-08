@@ -54,8 +54,8 @@ public:
    *
    * @return The calculated fee value.
    */
-  uint32_t calculateFeeValue(uint32_t fee_per_minute, uint32_t conclusion_time,
-                             uint32_t delivery_time_limit);
+  int32_t calculateFeeValue(int32_t fee_per_minute, int32_t conclusion_time,
+                             int32_t delivery_time_limit);
 
   /**
    * @brief Get the solution as a vector of indices.
@@ -104,7 +104,7 @@ public:
    * @param solution The vector of fruits representing the path.
    * @return The new solution fee.
    */
-  uint32_t recalculateSolution(Instance &instance,
+  int32_t recalculateSolution(Instance &instance,
                                std::vector<size_t> solution);
 
   /**
@@ -144,7 +144,7 @@ private:
   /**
    * @brief The elapsed time of the solution.
    */
-  uint32_t elapsed_time;
+  int32_t elapsed_time;
 };
 
 #endif

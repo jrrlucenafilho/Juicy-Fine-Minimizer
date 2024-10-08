@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
@@ -103,7 +104,8 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
         old_cost = new_cost;
         best_sequence = new_sequence;
       } else {
-        // So i always compare it to the input solution, and not last iter's 2-opt'ed solution
+        // So i always compare it to the input solution, and not last iter's
+        // 2-opt'ed solution
         new_sequence = solution.getSolution();
       }
     }
@@ -165,24 +167,24 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
 }
 
 /**
- * @brief Disturbs the solution so as to make it not fall into a local best pitfall
- * 
- * @param instance  instance object 
+ * @brief Disturbs the solution so as to make it not fall into a local best
+ * pitfall
+ *
+ * @param instance  instance object
  * @param solution  solution object
  * @return disturbed solution
  */
-Solution Disturbance(Instance& instance, Solution& solution)
-{
+Solution Disturbance(Instance &instance, Solution &solution) {
   // Single swap
   int swap_index_i, swap_index_j;
   vector<size_t> new_sequence = solution.getSolution();
 
   swap_index_i = rand() % new_sequence.size();
 
-  while(true){
+  while (true) {
     swap_index_j = rand() % new_sequence.size();
 
-    if(swap_index_i != swap_index_j){
+    if (swap_index_i != swap_index_j) {
       break;
     }
   }
@@ -209,6 +211,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
                              Instance &instance) {
   Solution best_of_all_solution;
   best_of_all_solution.setSolutionFee(INFINITY);
+  float_t previous_solution_fee = std::numeric_limits<float_t>::max();
 
   for (int i = 0; i < max_iters; i++) {
     // First build a viable solution
@@ -237,10 +240,13 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
         curr_iter_counter_ILS = 0;
       }
 
-            // Disturbance to help solution not fall into a local best pitfall
-            curr_iter_solution = Disturbance(instance, curr_iter_solution);
-            curr_iter_counter_ILS++;
-        }
+      // Disturbance to help solution not fall into a local best pitfall
+      if (curr_iter_solution.getSolutionFee() == previous_solution_fee)
+        curr_iter_solution = Disturbance(instance, curr_iter_solution);
+      
+      previous_solution_fee = curr_iter_solution.getSolutionFee();
+      curr_iter_counter_ILS++;
+    }
 
     // Now after after 1 full ILS execution (Executing LocalSearchRVND()
     // max_iters_ILS times) Check if it produced a better solution than previous
