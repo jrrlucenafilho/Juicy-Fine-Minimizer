@@ -1,38 +1,37 @@
 #include "Instance.hpp"
 #include "Solution.hpp"
-#include <cstdlib>
-#include <experimental/filesystem>
-#include <iostream>
 #include <algorithm>
+#include <cstdlib>
+#include <iostream>
 
 using namespace std;
 
-enum Fruits { ORANGE, APPLE, LEMON, GRAPE, MANGO };
 enum NeighborhoodStructure { SWAP, TWO_OPT, OR_OPT };
 
 // Neighborhood structures best improvement calc
 bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
-    std::vector<size_t> copy_curr_solution = curr_solution.getSolution();
-    bool optimized = false;
-    double curr_solution_fee = curr_solution.getSolutionFee();
+  std::vector<size_t> copy_curr_solution = curr_solution.getSolution();
+  bool optimized = false;
+  double curr_solution_fee = curr_solution.getSolutionFee();
 
-    for (int i = 0; i < copy_curr_solution.size(); i++) {
-        for (int j = i + 1; j < copy_curr_solution.size(); j++) {
-            std::swap(copy_curr_solution[i], copy_curr_solution[j]);
+  for (int i = 0; i < copy_curr_solution.size(); i++) {
+    for (int j = i + 1; j < copy_curr_solution.size(); j++) {
+      std::swap(copy_curr_solution[i], copy_curr_solution[j]);
 
-            double new_solution_fee = curr_solution.recalculateSolution(instance, copy_curr_solution);
+      double new_solution_fee =
+          curr_solution.recalculateSolution(instance, copy_curr_solution);
 
-            if (new_solution_fee < curr_solution_fee) {
-                curr_solution.updateSolution(instance, copy_curr_solution);
-                optimized = true;
-                curr_solution_fee = new_solution_fee;
-            } else {
-                std::swap(copy_curr_solution[i], copy_curr_solution[j]);
-            }
-        }
+      if (new_solution_fee < curr_solution_fee) {
+        curr_solution.updateSolution(instance, copy_curr_solution);
+        optimized = true;
+        curr_solution_fee = new_solution_fee;
+      } else {
+        std::swap(copy_curr_solution[i], copy_curr_solution[j]);
+      }
     }
+  }
 
-    return optimized;
+  return optimized;
 }
 
 bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
@@ -41,25 +40,30 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   double curr_solution_fee = curr_solution.getSolutionFee();
 
   for (int i = 0; i < copy_curr_solution.size(); i++) {
-    for (int j = 0; j < copy_curr_solution.size() - 1; j++) { 
+    for (int j = 0; j < copy_curr_solution.size() - 1; j++) {
       size_t reinsertion_insert_index = j;
       uint32_t value_to_change = copy_curr_solution[i];
 
       copy_curr_solution.erase(copy_curr_solution.begin() + i);
-      copy_curr_solution.insert(copy_curr_solution.begin() + reinsertion_insert_index, value_to_change);
+      copy_curr_solution.insert(copy_curr_solution.begin() +
+                                    reinsertion_insert_index,
+                                value_to_change);
 
-    double new_solution_fee =
-        curr_solution.recalculateSolution(instance, copy_curr_solution);
+      double new_solution_fee =
+          curr_solution.recalculateSolution(instance, copy_curr_solution);
 
       if (new_solution_fee < curr_solution_fee) {
-        curr_solution.updateSolution(instance, copy_curr_solution, new_solution_fee);
+        curr_solution.updateSolution(instance, copy_curr_solution,
+                                     new_solution_fee);
         curr_solution_fee = curr_solution.getSolutionFee();
 
         optimized = true;
       }
 
-      copy_curr_solution.erase(copy_curr_solution.begin() + reinsertion_insert_index);
-      copy_curr_solution.insert(copy_curr_solution.begin() + i, value_to_change);
+      copy_curr_solution.erase(copy_curr_solution.begin() +
+                               reinsertion_insert_index);
+      copy_curr_solution.insert(copy_curr_solution.begin() + i,
+                                value_to_change);
     }
   }
 
@@ -67,56 +71,63 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
 }
 
 /**
- * @brief exhaustively compares current solution against all possible 2-opt neighborhood structure movements
- * 
+ * @brief exhaustively compares current solution against all possible 2-opt
+ * neighborhood structure movements
+ *
  * @param instance instance file
  * @param solution current solution that'll be evaluated
  * @returns is_optimized bool that indicates if solution has been optimized
  */
-bool BestImprovement2Opt(Instance& instance, Solution& solution)
-{
-/*  Slightly more efficient way
-  // Deltas regarding cost/fee
-  double best_cost = 0;
-  double previous_cost, curr_cost, reversed_subseq_cost = 0;
-  int best_i = 0; // Iter for the leftmost point to be cut int the seq
-  int best_j = 0; // Iter for the rightmost point of the cut in the seq
+bool BestImprovement2Opt(Instance &instance, Solution &solution) {
+  /*  Slightly more efficient way
+    // Deltas regarding cost/fee
+    double best_cost = 0;
+    double previous_cost, curr_cost, reversed_subseq_cost = 0;
+    int best_i = 0; // Iter for the leftmost point to be cut int the seq
+    int best_j = 0; // Iter for the rightmost point of the cut in the seq
 
-  int conclusion_time_tracker = 0;
+    int conclusion_time_tracker = 0;
 
-  // First cost is just the input sequence one
-  previous_cost = solution.getSolutionFee();
+    // First cost is just the input sequence one
+    previous_cost = solution.getSolutionFee();
 
-  // Iters through the sequence element by element
-  // Beginning from the second element cause the sequence has to start from an arc at least 
-  for(int i = 1; i < (int)solution.getSolution().size(); i++){
-    // And this iters as the second point-of-cut-for-sequence-reversal
-    for(int j = i + 1; i < (int)solution.getSolution().size(); j++){
-      // Here goes the calc that gets the reversal cost for current "i -> ... -> k -> ... -> j" 2-opt-reversed sequence
-      // f' = f - (prev_i_and_j_edge_arcs_costs) + (new_i_and_j_edge_arc_costs); (inbetween costs are the same among sequences)
-      // (prev_i_and_j_edge_arcs_costs) = cost_to_transition_to_fruit + cost_to_produce_fruit + cost_to_transition_to_next_fruit
-      // TODO: Check if instance.getProductionTime()'s index is refers to the fruit's sequence position index
+    // Iters through the sequence element by element
+    // Beginning from the second element cause the sequence has to start from an
+    arc at least for(int i = 1; i < (int)solution.getSolution().size(); i++){
+      // And this iters as the second point-of-cut-for-sequence-reversal
+      for(int j = i + 1; i < (int)solution.getSolution().size(); j++){
+        // Here goes the calc that gets the reversal cost for current "i -> ...
+    -> k -> ... -> j" 2-opt-reversed sequence
+        // f' = f - (prev_i_and_j_edge_arcs_costs) +
+    (new_i_and_j_edge_arc_costs); (inbetween costs are the same among sequences)
+        // (prev_i_and_j_edge_arcs_costs) = cost_to_transition_to_fruit +
+    cost_to_produce_fruit + cost_to_transition_to_next_fruit
+        // TODO: Check if instance.getProductionTime()'s index is refers to the
+    fruit's sequence position index
 
-      // Doing it like this because, at least for small 2-opt subsequences (fairly common), it's cheaper than making a copy of the solution
-      // Iterates throught the subsequence, calc'ing cost for each node as it's needed
-      for(int k = i; k <= j; k++){
-        // Get the time passed up to first element of to-be-reversed subseq
-        conclusion_time_tracker += solution.
-        reversed_subseq_cost += solution.calculateFeeValue(instance.getLateFee(solution.getSolution()[k]), instance., )
+        // Doing it like this because, at least for small 2-opt subsequences
+    (fairly common), it's cheaper than making a copy of the solution
+        // Iterates throught the subsequence, calc'ing cost for each node as
+    it's needed for(int k = i; k <= j; k++){
+          // Get the time passed up to first element of to-be-reversed subseq
+          conclusion_time_tracker += solution.
+          reversed_subseq_cost +=
+    solution.calculateFeeValue(instance.getLateFee(solution.getSolution()[k]),
+    instance., )
+        }
+
+        if(curr_cost < previous_cost){
+          best_cost = curr_cost;
+          best_i = i;
+          best_j = j;
+        }
+
       }
-
-      if(curr_cost < previous_cost){
-        best_cost = curr_cost;
-        best_i = i;
-        best_j = j;
-      }
-
     }
-  }
 
-  // Actual swap if the cost/fee got better
-*/
- // Expensive but easier version
+    // Actual swap if the cost/fee got better
+  */
+  // Expensive but easier version
   vector<size_t> new_sequence = solution.getSolution();
   vector<size_t> best_sequence;
 
@@ -125,26 +136,30 @@ bool BestImprovement2Opt(Instance& instance, Solution& solution)
   double old_cost = first_cost;
   double new_cost;
 
-  // Change from first element because it's the first arc, exhaustive in that it tries every single combination
-  for(int i = 1; i < (int)instance.getQuantityOfRequests(); i++){
-    for(int j = i + 2; j < (int)instance.getQuantityOfRequests(); j++){
+  // Change from first element because it's the first arc, exhaustive in that it
+  // tries every single combination
+  for (int i = 1; i < (int)instance.getQuantityOfRequests(); i++) {
+    for (int j = i + 2; j < (int)instance.getQuantityOfRequests(); j++) {
       // Reverse subsequence in fruit order
       reverse(new_sequence.begin() + i, new_sequence.begin() + j);
 
       // Calculate new cost
       new_cost = solution.recalculateSolution(instance, new_sequence);
 
-      // Compare costs, and attribute new_cost and new_sequence if new_cost is lower
-      if(new_cost < old_cost){
+      // Compare costs, and attribute new_cost and new_sequence if new_cost is
+      // lower
+      if (new_cost < old_cost) {
         old_cost = new_cost;
         best_sequence = new_sequence;
       }
     }
   }
 
-  // After testing, change solution to the lowest cost found, if it got any lower than when the solution came in as input
-  if(old_cost < first_cost){
-    solution.setSolutionFee(solution.recalculateSolution(instance, best_sequence));
+  // After testing, change solution to the lowest cost found, if it got any
+  // lower than when the solution came in as input
+  if (old_cost < first_cost) {
+    solution.setSolutionFee(
+        solution.recalculateSolution(instance, best_sequence));
     solution.setSequence(best_sequence);
 
     return true;
@@ -153,7 +168,8 @@ bool BestImprovement2Opt(Instance& instance, Solution& solution)
   return false;
 }
 
-// Each BestImprovement changes the solution itself and returns as bool if the cost is lower
+// Each BestImprovement changes the solution itself and returns as bool if the
+// cost is lower
 /**
  * @brief Random Variant Neighborhood Descent Local Search. Checks multiple
  * different neighborhood structures from a prebuilt solution and only returns
@@ -163,7 +179,9 @@ bool BestImprovement2Opt(Instance& instance, Solution& solution)
  * @param curr_solution pre-built solution
  */
 void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
-  vector<int> neighborhood_structures = { SWAP, TWO_OPT, OR_OPT }; // Iterating through vec is O(n) but n = nh structures quantity
+  vector<int> neighborhood_structures = {
+      SWAP, TWO_OPT,
+      OR_OPT}; // Iterating through vec is O(n) but n = nh structures quantity
   bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
@@ -234,12 +252,15 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
         curr_iter_counter_ILS = 0;
       }
 
-            // Disturbance to help solution not fall into a local best pitfall
-            // Preferably disturb the curr_best_solution, disturbing from curr_iter_solution causes fluctuations in the final solution
-            // on big and heavy instances (gets always close to optimal answer, but never quite so)
-            //TODO: curr_iter_solution.Disturbance(curr_best_solution) or curr_iter_solution = Disturbance(instance, curr_best_solution)
-            curr_iter_counter_ILS++;
-        }
+      // Disturbance to help solution not fall into a local best pitfall
+      // Preferably disturb the curr_best_solution, disturbing from
+      // curr_iter_solution causes fluctuations in the final solution on big and
+      // heavy instances (gets always close to optimal answer, but never quite
+      // so)
+      // TODO: curr_iter_solution.Disturbance(curr_best_solution) or
+      // curr_iter_solution = Disturbance(instance, curr_best_solution)
+      curr_iter_counter_ILS++;
+    }
 
     // Now after after 1 full ILS execution (Executing LocalSearchRVND()
     // max_iters_ILS times) Check if it produced a better solution than previous

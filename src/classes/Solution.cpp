@@ -74,7 +74,8 @@ void Solution::createSolution(Instance &instance) {
 uint32_t Solution::calculateFeeValue(uint32_t fee_per_minute,
                                      uint32_t conclusion_time,
                                      uint32_t delivery_time_limit) {
-  return fee_per_minute * (conclusion_time - delivery_time_limit);
+  int32_t current_solution_fee = fee_per_minute * (conclusion_time - delivery_time_limit);
+  return 0 < current_solution_fee ? current_solution_fee : 0;
 }
 
 std::vector<size_t> Solution::getSolution() { return this->fruit_order; }
