@@ -219,7 +219,26 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
  */
 Solution Disturbance(Instance& instance, Solution& solution)
 {
+  // Single swap
+  int swap_index_i, swap_index_j;
+  vector<size_t> new_sequence = solution.getSolution();
 
+  swap_index_i = rand() % new_sequence.size();
+
+  while(true){
+    swap_index_j = rand() % new_sequence.size();
+
+    if(swap_index_i != swap_index_j){
+      break;
+    }
+  }
+
+  std::swap(new_sequence[swap_index_i], new_sequence[swap_index_j]);
+
+  //  Recalc cost with disturbed solution
+  solution.updateSolution(instance, new_sequence);
+
+  return solution;
 }
 
 // ILS metaheuristic func
