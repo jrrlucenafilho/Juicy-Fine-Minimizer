@@ -14,8 +14,8 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
   bool optimized = false;
   double curr_solution_fee = curr_solution.getSolutionFee();
 
-  for (int i = 0; i < copy_curr_solution.size(); i++) {
-    for (int j = i + 1; j < copy_curr_solution.size(); j++) {
+  for (int i = 0; i < (int)copy_curr_solution.size(); i++) {
+    for (int j = i + 1; j < (int)copy_curr_solution.size(); j++) {
       std::swap(copy_curr_solution[i], copy_curr_solution[j]);
 
       double new_solution_fee =
@@ -39,8 +39,8 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   bool optimized = false;
   double curr_solution_fee = curr_solution.getSolutionFee();
 
-  for (int i = 0; i < copy_curr_solution.size(); i++) {
-    for (int j = 0; j < copy_curr_solution.size() - 1; j++) {
+  for (int i = 0; i < (int)copy_curr_solution.size(); i++) {
+    for (int j = 0; j < (int)copy_curr_solution.size() - 1; j++) {
       size_t reinsertion_insert_index = j;
       uint32_t value_to_change = copy_curr_solution[i];
 
@@ -79,53 +79,6 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
  * @returns is_optimized bool that indicates if solution has been optimized
  */
 bool BestImprovement2Opt(Instance &instance, Solution &solution) {
-  /*  Slightly more efficient way
-    // Deltas regarding cost/fee
-    double best_cost = 0;
-    double previous_cost, curr_cost, reversed_subseq_cost = 0;
-    int best_i = 0; // Iter for the leftmost point to be cut int the seq
-    int best_j = 0; // Iter for the rightmost point of the cut in the seq
-
-    int conclusion_time_tracker = 0;
-
-    // First cost is just the input sequence one
-    previous_cost = solution.getSolutionFee();
-
-    // Iters through the sequence element by element
-    // Beginning from the second element cause the sequence has to start from an
-    arc at least for(int i = 1; i < (int)solution.getSolution().size(); i++){
-      // And this iters as the second point-of-cut-for-sequence-reversal
-      for(int j = i + 1; i < (int)solution.getSolution().size(); j++){
-        // Here goes the calc that gets the reversal cost for current "i -> ...
-    -> k -> ... -> j" 2-opt-reversed sequence
-        // f' = f - (prev_i_and_j_edge_arcs_costs) +
-    (new_i_and_j_edge_arc_costs); (inbetween costs are the same among sequences)
-        // (prev_i_and_j_edge_arcs_costs) = cost_to_transition_to_fruit +
-    cost_to_produce_fruit + cost_to_transition_to_next_fruit
-
-        // Doing it like this because, at least for small 2-opt subsequences
-    (fairly common), it's cheaper than making a copy of the solution
-        // Iterates throught the subsequence, calc'ing cost for each node as
-    it's needed for(int k = i; k <= j; k++){
-          // Get the time passed up to first element of to-be-reversed subseq
-          conclusion_time_tracker += solution.
-          reversed_subseq_cost +=
-    solution.calculateFeeValue(instance.getLateFee(solution.getSolution()[k]),
-    instance., )
-        }
-
-        if(curr_cost < previous_cost){
-          best_cost = curr_cost;
-          best_i = i;
-          best_j = j;
-        }
-
-      }
-    }
-
-    // Actual swap if the cost/fee got better
-  */
-  // Expensive but easier version
   vector<size_t> new_sequence = solution.getSolution();
   vector<size_t> best_sequence;
 
