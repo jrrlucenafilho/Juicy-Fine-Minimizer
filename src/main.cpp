@@ -20,7 +20,7 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
         for (int j = i + 1; j < copy_curr_solution.size(); j++) {
             std::swap(copy_curr_solution[i], copy_curr_solution[j]);
 
-            double new_solution_fee = curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0;
+            double new_solution_fee = curr_solution.recalculateSolution(instance, copy_curr_solution);
 
             if (new_solution_fee < curr_solution_fee) {
                 curr_solution.updateSolution(instance, copy_curr_solution);
@@ -48,7 +48,7 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
     copy_curr_solution.insert(copy_curr_solution.begin() + random_insert_index, value_to_change);
 
     double new_solution_fee =
-        curr_solution.recalculateSolution(instance, copy_curr_solution) / 100.0;
+        curr_solution.recalculateSolution(instance, copy_curr_solution);
 
     if (new_solution_fee < curr_solution_fee) {
       curr_solution.updateSolution(instance, copy_curr_solution);
@@ -163,7 +163,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
   bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
-    int rand_nh_num = 1;//rand() % neighborhood_structures.size(); // O(1)
+    int rand_nh_num = rand() % neighborhood_structures.size(); // O(1)
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
