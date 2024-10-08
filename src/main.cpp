@@ -102,8 +102,6 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
     (new_i_and_j_edge_arc_costs); (inbetween costs are the same among sequences)
         // (prev_i_and_j_edge_arcs_costs) = cost_to_transition_to_fruit +
     cost_to_produce_fruit + cost_to_transition_to_next_fruit
-        // TODO: Check if instance.getProductionTime()'s index is refers to the
-    fruit's sequence position index
 
         // Doing it like this because, at least for small 2-opt subsequences
     (fairly common), it's cheaper than making a copy of the solution
@@ -235,7 +233,7 @@ Solution Disturbance(Instance& instance, Solution& solution)
 
   std::swap(new_sequence[swap_index_i], new_sequence[swap_index_j]);
 
-  //  Recalc cost with disturbed solution
+  // Recalc cost with disturbed solution
   solution.updateSolution(instance, new_sequence);
 
   return solution;
@@ -247,7 +245,7 @@ Solution Disturbance(Instance& instance, Solution& solution)
  * greedy-algorithm-built viable solution
  *
  * @param max_iters Times a solution will be built put through ILS
- * @param max_iters_ILS Times ILS will be executed on  given viable solution
+ * @param max_iters_ILS Times ILS will be executed on given viable solution
  * @param instance instance object
  * @return Best-of-All Solution found
  */
@@ -317,8 +315,6 @@ int main(int argc, char *argv[]) {
   int iters_costs_sum = 0;
 
   // Define upper limit for ILS execs (used same rule as ILS for TSP here)
-  // TODO: Check research papers to see if there's a better rule on choosing
-  // max_iters_ILS for this specific problem
   if (instance.getQuantityOfRequests() >= 150) {
     max_iters_ILS = (int)instance.getQuantityOfRequests() / 2;
   } else {
@@ -331,8 +327,6 @@ int main(int argc, char *argv[]) {
 
     solution = IteratedLocalSearch(max_iters, max_iters_ILS, instance);
 
-    // solution.calculateFeeValue(); //TODO: Might not be needed. Just to make
-    // sure the cost is updated as of here
     iters_costs_sum += solution.getSolutionFee();
 
     cout << "Current Solution Fee (iter " << i + 1
