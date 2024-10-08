@@ -7,7 +7,6 @@
 
 using namespace std;
 
-enum Fruits { ORANGE, APPLE, LEMON, GRAPE, MANGO };
 enum NeighborhoodStructure { SWAP, TWO_OPT, OR_OPT };
 
 // Neighborhood structures best improvement calc
@@ -192,6 +191,18 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
   }
 }
 
+/**
+ * @brief Disturbs the solution so as to make it not fall into a local best pitfall
+ * 
+ * @param instance  instance object 
+ * @param solution  solution object
+ * @return disturbed solution
+ */
+Solution Disturbance(Instance& instance, Solution& solution)
+{
+
+}
+
 // ILS metaheuristic func
 /**
  * @brief ILS Metaheuristic function. Run Iterated Local Search on a
@@ -237,7 +248,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
             // Disturbance to help solution not fall into a local best pitfall
             // Preferably disturb the curr_best_solution, disturbing from curr_iter_solution causes fluctuations in the final solution
             // on big and heavy instances (gets always close to optimal answer, but never quite so)
-            //TODO: curr_iter_solution.Disturbance(curr_best_solution) or curr_iter_solution = Disturbance(instance, curr_best_solution)
+            curr_iter_solution = Disturbance(instance, curr_best_solution);
             curr_iter_counter_ILS++;
         }
 
