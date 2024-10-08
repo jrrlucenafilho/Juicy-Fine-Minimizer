@@ -72,13 +72,6 @@ public:
   float_t getSolutionFee();
 
   /**
-   * @brief Set the solution fee.
-   *
-   * @param solution_fee The new solution fee.
-   */
-  void setSolutionFee(uint32_t solution_fee);
-
-  /**
    * @brief Update the solution with a new path.
    *
    * @param instance The instance associated with the solution.
@@ -115,11 +108,9 @@ public:
                                std::vector<size_t> solution);
 
   /**
-   * @brief Set the Solution Fee. OBS: Should only be used to set fee to
-   * INIFINITY in ILS's first iteration
+   * @brief Set the solution fee.
    *
-   * @param new_fee new fee that'll be set to INFINITY
-   * @return uint32_t
+   * @param solution_fee The new solution fee.
    */
   void setSolutionFee(float new_fee);
 

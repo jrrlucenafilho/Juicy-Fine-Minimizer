@@ -286,7 +286,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
             // Disturbance to help solution not fall into a local best pitfall
             // Preferably disturb the curr_best_solution, disturbing from curr_iter_solution causes fluctuations in the final solution
             // on big and heavy instances (gets always close to optimal answer, but never quite so)
-            curr_iter_solution = Disturbance(instance, curr_best_solution);
+            curr_iter_solution = Disturbance(instance, curr_iter_solution);
             curr_iter_counter_ILS++;
         }
 
