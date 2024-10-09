@@ -115,7 +115,7 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
   // lower than when the solution came in as input
   if (old_cost < first_cost) {
     solution.setSolutionFee(
-        solution.recalculateSolution(instance, best_sequence));
+    solution.recalculateSolution(instance, best_sequence));
     solution.setSequence(best_sequence);
 
     return true;
@@ -171,10 +171,12 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
  * @param solution  solution object
  * @return disturbed solution
  */
-Solution Disturbance(Instance &instance, Solution &solution, int num_swaps) {
+Solution Disturbance(Instance &instance, Solution &solution, int num_swaps, int num_2_opts) {
+  // Swaps
   int swap_index_i, swap_index_j;
   vector<size_t> new_sequence = solution.getSolution();
 
+  // Randomly choosing 2 different indexes
   for(int i = 0; i < num_swaps; i++){
     swap_index_i = rand() % new_sequence.size();
 
@@ -189,6 +191,24 @@ Solution Disturbance(Instance &instance, Solution &solution, int num_swaps) {
     std::swap(new_sequence[swap_index_i], new_sequence[swap_index_j]);
 
     // Recalc cost with disturbed solution
+    solution.updateSolution(instance, new_sequence);
+  }
+
+  // 2-Opts
+  int two_opt_index_1, two_opt_index_2;
+
+  for(int i = 0; i < num_2_opts; i++){
+    two_opt_index_1 = rand() % new_sequence.size();
+
+    while (true) {
+      two_opt_index_2 = rand() % new_sequence.size();
+
+      if (two_opt_index_1 != two_opt_index_2) {
+        break;
+      }
+    }
+
+    std::reverse(new_sequence.begin() + two_opt_index_1, new_sequence.begin() + two_opt_index_2);
     solution.updateSolution(instance, new_sequence);
   }
 
@@ -238,7 +258,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance &instanc
 
       // Disturbance to help solution not fall into a local best pitfall
       if (curr_iter_solution.getSolutionFee() == previous_solution_fee)
-        curr_iter_solution = Disturbance(instance, curr_iter_solution, 1);
+        curr_iter_solution = Disturbance(instance, curr_iter_solution, 10, 5);
       
       previous_solution_fee = curr_iter_solution.getSolutionFee();
       curr_iter_counter_ILS++;
