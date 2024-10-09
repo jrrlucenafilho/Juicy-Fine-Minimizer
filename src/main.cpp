@@ -139,8 +139,8 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
   bool has_solution_improved = false;
 
   // All this is relative to n60C instance
-  // TODO(Fix): Cost that gets here is always 4.15766077e+10
-  // And elapsed_tim is always -933778592
+  // TODO(Fix): Cost that gets here from the greedy algorithm is always 4.15766077e+10
+  // And elapsed_time is always -933778592
 
   // TODO(Fix): And no matter which bestImprovement() (except swap, and now except 2-opt) it goes into on the first iter
   // The solution_fee always becomes -763126528 and
