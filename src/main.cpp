@@ -215,8 +215,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance &instanc
     Solution curr_best_solution;
 
     curr_iter_solution.createSolution(instance);
-    curr_best_solution = curr_iter_solution; // In the beginning, first sol is
-                                             // currently the best one
+    curr_best_solution = curr_iter_solution; // In the beginning, first sol is currently the best one
 
     int curr_iter_counter_ILS = 0;
 
