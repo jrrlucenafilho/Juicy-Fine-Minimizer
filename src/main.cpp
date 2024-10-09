@@ -114,9 +114,9 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
   // After testing, change solution to the lowest cost found, if it got any
   // lower than when the solution came in as input
   if (old_cost < first_cost) {
-    solution.setSolutionFee(
-    solution.recalculateSolution(instance, best_sequence));
-    solution.setSequence(best_sequence);
+    //solution.setSolutionFee(solution.recalculateSolution(instance, best_sequence));
+    //solution.setSequence(best_sequence);
+    solution.updateSolution(instance, best_sequence);
 
     return true;
   }
@@ -137,6 +137,14 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
 void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
   vector<int> neighborhood_structures = { SWAP, TWO_OPT, OR_OPT};
   bool has_solution_improved = false;
+
+  // All this is relative to n60C instance
+  // TODO(Fix): Cost that gets here is always 4.15766077e+10
+  // And elapsed_tim is always -933778592
+
+  // TODO(Fix): And no matter which bestImprovement() (except swap, and now except 2-opt) it goes into on the first iter
+  // The solution_fee always becomes -763126528 and
+  // elapsed_time stays as -933778592 on the firts iter
 
   while (!neighborhood_structures.empty()) {
     int rand_nh_num = rand() % neighborhood_structures.size();
@@ -250,15 +258,15 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance &instanc
       // within current ILS, it has more room to improve Means it only doesn't
       // become the new best if it doesn't improve AT ALL once in all
       // max_iters_ILS execs
-      if (curr_iter_solution.getSolutionFee() <
-          curr_best_solution.getSolutionFee()) {
+      if (curr_iter_solution.getSolutionFee() < curr_best_solution.getSolutionFee()) {
         curr_best_solution = curr_iter_solution;
         curr_iter_counter_ILS = 0;
       }
 
       // Disturbance to help solution not fall into a local best pitfall
-      if (curr_iter_solution.getSolutionFee() == previous_solution_fee)
+      if (curr_iter_solution.getSolutionFee() == previous_solution_fee) {
         curr_iter_solution = Disturbance(instance, curr_iter_solution, 10, 5);
+      }
       
       previous_solution_fee = curr_iter_solution.getSolutionFee();
       curr_iter_counter_ILS++;
