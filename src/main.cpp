@@ -171,25 +171,26 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
  * @param solution  solution object
  * @return disturbed solution
  */
-Solution Disturbance(Instance &instance, Solution &solution) {
-  // Single swap
+Solution Disturbance(Instance &instance, Solution &solution, int num_swaps) {
   int swap_index_i, swap_index_j;
   vector<size_t> new_sequence = solution.getSolution();
 
-  swap_index_i = rand() % new_sequence.size();
+  for(int i = 0; i < num_swaps; i++){
+    swap_index_i = rand() % new_sequence.size();
 
-  while (true) {
-    swap_index_j = rand() % new_sequence.size();
+    while (true) {
+      swap_index_j = rand() % new_sequence.size();
 
-    if (swap_index_i != swap_index_j) {
-      break;
+      if (swap_index_i != swap_index_j) {
+        break;
+      }
     }
+
+    std::swap(new_sequence[swap_index_i], new_sequence[swap_index_j]);
+
+    // Recalc cost with disturbed solution
+    solution.updateSolution(instance, new_sequence);
   }
-
-  std::swap(new_sequence[swap_index_i], new_sequence[swap_index_j]);
-
-  // Recalc cost with disturbed solution
-  solution.updateSolution(instance, new_sequence);
 
   return solution;
 }
@@ -237,7 +238,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance &instanc
 
       // Disturbance to help solution not fall into a local best pitfall
       if (curr_iter_solution.getSolutionFee() == previous_solution_fee)
-        curr_iter_solution = Disturbance(instance, curr_iter_solution);
+        curr_iter_solution = Disturbance(instance, curr_iter_solution, 1);
       
       previous_solution_fee = curr_iter_solution.getSolutionFee();
       curr_iter_counter_ILS++;
