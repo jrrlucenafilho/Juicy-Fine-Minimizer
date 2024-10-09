@@ -135,13 +135,11 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
  * @param curr_solution pre-built solution
  */
 void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
-  vector<int> neighborhood_structures = {
-      SWAP, TWO_OPT,
-      OR_OPT}; // Iterating through vec is O(n) but n = nh structures quantity
+  vector<int> neighborhood_structures = { SWAP, TWO_OPT, OR_OPT};
   bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
-    int rand_nh_num = rand() % neighborhood_structures.size(); // O(1)
+    int rand_nh_num = rand() % neighborhood_structures.size();
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
@@ -160,8 +158,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
     if (has_solution_improved) {
       neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
     } else {
-      neighborhood_structures.erase(neighborhood_structures.begin() +
-                                    rand_nh_num);
+      neighborhood_structures.erase(neighborhood_structures.begin() + rand_nh_num);
     }
   }
 }
@@ -207,8 +204,7 @@ Solution Disturbance(Instance &instance, Solution &solution) {
  * @param instance instance object
  * @return Best-of-All Solution found
  */
-Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
-                             Instance &instance) {
+Solution IteratedLocalSearch(int max_iters, int max_iters_ILS, Instance &instance) {
   Solution best_of_all_solution;
   best_of_all_solution.setSolutionFee(INFINITY);
   float_t previous_solution_fee = std::numeric_limits<float_t>::max();
@@ -251,8 +247,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
     // Now after after 1 full ILS execution (Executing LocalSearchRVND()
     // max_iters_ILS times) Check if it produced a better solution than previous
     // ILS execution, attributing if so
-    if (curr_best_solution.getSolutionFee() <
-        best_of_all_solution.getSolutionFee()) {
+    if (curr_best_solution.getSolutionFee() < best_of_all_solution.getSolutionFee()) {
       best_of_all_solution = curr_best_solution;
     }
   }
