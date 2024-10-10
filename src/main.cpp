@@ -23,7 +23,8 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
           curr_solution.recalculateSolution(instance, copy_curr_solution);
 
       if (new_solution_fee < curr_solution_fee) {
-        curr_solution.updateSolution(instance, copy_curr_solution, new_solution_fee);
+        curr_solution.updateSolution(instance, copy_curr_solution,
+                                     new_solution_fee);
         optimized = true;
         curr_solution_fee = new_solution_fee;
       } else {
@@ -133,13 +134,19 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
  * @param curr_solution pre-built solution
  */
 void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
-  vector<int> neighborhood_structures = {
-      SWAP, TWO_OPT,
-      OR_OPT}; // Iterating through vec is O(n) but n = nh structures quantity
+  vector<int> neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
   bool has_solution_improved = false;
 
+  // All this is relative to n60C instance
+  // TODO(Fix): Cost that gets here from the greedy algorithm is
+  // always 4.15766077e+10 And elapsed_time is always -933778592
+
+  // TODO(Fix): And no matter which bestImprovement() (except swap, and now
+  // except 2-opt) it goes into on the first iter The solution_fee always
+  // becomes -763126528 and elapsed_time stays as -933778592 on the firts iter
+
   while (!neighborhood_structures.empty()) {
-    int rand_nh_num = rand() % neighborhood_structures.size(); // O(1)
+    int rand_nh_num = rand() % neighborhood_structures.size();
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
@@ -173,7 +180,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
  * @return disturbed solution
  */
 Solution Disturbance(Instance &instance, Solution &solution) {
-  // Single swap
+  // Swaps
   int swap_index_i, swap_index_j;
   vector<size_t> new_sequence = solution.getSolution();
 
@@ -239,9 +246,10 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
       }
 
       // Disturbance to help solution not fall into a local best pitfall
-      if (curr_iter_solution.getSolutionFee() == previous_solution_fee)
+      if (curr_iter_solution.getSolutionFee() == previous_solution_fee) {
         curr_iter_solution = Disturbance(instance, curr_iter_solution);
-      
+      }
+
       previous_solution_fee = curr_iter_solution.getSolutionFee();
       curr_iter_counter_ILS++;
     }
