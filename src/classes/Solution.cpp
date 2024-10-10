@@ -1,6 +1,7 @@
 #include "Solution.hpp"
 #include "Instance.hpp"
 #include <algorithm>
+#include <iostream>
 #include <limits>
 
 const char *InstanceNotLoadedException::what() {
@@ -24,10 +25,11 @@ void Solution::createSolution(Instance &instance) {
     size_t current_max_fee_index = 0;
     int32_t current_max_fee = std::numeric_limits<int32_t>::min();
     int32_t current_elapsed_time = this->elapsed_time;
-
+    int32_t fee_value = 0;
+  
     if (i == 0) {
-      for (int j = 0; j < instance.getQuantityOfRequests(); j++) {
-        float_t fee_value = this->calculateFeeValue(
+      for (size_t j = 0; j < instance.getQuantityOfRequests(); j++) {
+        fee_value = this->calculateFeeValue(
             instance.getLateFee(j),
             instance.getProductionTime(j) + instance.getTransitionTime(0, j),
             instance.getDeliveryTimeLimit(j));
@@ -35,8 +37,7 @@ void Solution::createSolution(Instance &instance) {
         if (fee_value >= current_max_fee) {
           current_max_fee_index = j;
           current_max_fee = fee_value;
-          current_elapsed_time =
-              this->elapsed_time + instance.getProductionTime(j);
+          current_elapsed_time = instance.getProductionTime(j) + instance.getTransitionTime(0, j);
         }
       }
     } else {
@@ -47,7 +48,7 @@ void Solution::createSolution(Instance &instance) {
           continue;
         }
 
-        float_t fee_value = this->calculateFeeValue(
+        fee_value = this->calculateFeeValue(
             instance.getLateFee(j),
             instance.getProductionTime(j) +
                 instance.getTransitionTime(this->fruit_order.back() + 1, j) +
@@ -59,8 +60,7 @@ void Solution::createSolution(Instance &instance) {
           current_max_fee = fee_value;
           current_elapsed_time =
               this->elapsed_time + instance.getProductionTime(j) +
-              instance.getTransitionTime(this->fruit_order.back() + 1, j) +
-              this->elapsed_time;
+              instance.getTransitionTime(this->fruit_order.back() + 1, j);
         }
       }
     }
@@ -72,15 +72,16 @@ void Solution::createSolution(Instance &instance) {
 }
 
 int32_t Solution::calculateFeeValue(int32_t fee_per_minute,
-                                     int32_t conclusion_time,
-                                     int32_t delivery_time_limit) {
-  int32_t current_solution_fee = fee_per_minute * (conclusion_time - delivery_time_limit);
-  return 0 < current_solution_fee ? current_solution_fee : 0;
+                                    int32_t conclusion_time,
+                                    int32_t delivery_time_limit) {
+  int32_t current_solution_fee =
+      fee_per_minute * (conclusion_time - delivery_time_limit);
+  return current_solution_fee;
 }
 
 std::vector<size_t> Solution::getSolution() { return this->fruit_order; }
 
-float_t Solution::getSolutionFee() { return this->solution_fee; }
+int32_t Solution::getSolutionFee() { return this->solution_fee; }
 
 void Solution::updateSolution(Instance &instance,
                               std::vector<size_t> new_solution) {
@@ -128,7 +129,7 @@ void Solution::recalculateSolution(Instance &instance) {
 }
 
 int32_t Solution::recalculateSolution(Instance &instance,
-                                       std::vector<size_t> solution) {
+                                      std::vector<size_t> solution) {
   int32_t solution_fee = 0;
   int32_t elapsed_time = 0;
 
