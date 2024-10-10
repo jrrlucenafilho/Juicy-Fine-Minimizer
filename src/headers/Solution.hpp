@@ -69,7 +69,7 @@ public:
    *
    * @return The fee of the solution in float format.
    */
-  float_t getSolutionFee();
+  int32_t getSolutionFee();
 
   /**
    * @brief Update the solution with a new path.
@@ -112,7 +112,7 @@ public:
    *
    * @param solution_fee The new solution fee.
    */
-  void setSolutionFee(float new_fee);
+  void setSolutionFee(int32_t new_fee);
 
   /**
    * @brief Returns time passed up to a fruit located in index (in solution
@@ -139,7 +139,7 @@ private:
   /**
    * @brief The total fee of the solution.
    */
-  float solution_fee;
+  int32_t solution_fee;
 
   /**
    * @brief The elapsed time of the solution.
