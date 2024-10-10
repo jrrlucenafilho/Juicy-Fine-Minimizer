@@ -112,7 +112,7 @@ public:
    *
    * @param solution_fee The new solution fee.
    */
-  void setSolutionFee(float new_fee);
+  void setSolutionFee(int32_t new_fee);
 
   /**
    * @brief Returns time passed up to a fruit located in index (in solution

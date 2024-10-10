@@ -13,17 +13,17 @@ enum NeighborhoodStructure { SWAP, TWO_OPT, OR_OPT };
 bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
   std::vector<size_t> copy_curr_solution = curr_solution.getSolution();
   bool optimized = false;
-  double curr_solution_fee = curr_solution.getSolutionFee();
+  int32_t curr_solution_fee = curr_solution.getSolutionFee();
 
-  for (int i = 0; i < (int)copy_curr_solution.size(); i++) {
-    for (int j = i + 1; j < (int)copy_curr_solution.size(); j++) {
+  for (size_t i = 0; i < copy_curr_solution.size(); i++) {
+    for (size_t j = i + 1; j < copy_curr_solution.size(); j++) {
       std::swap(copy_curr_solution[i], copy_curr_solution[j]);
 
-      double new_solution_fee =
+      int32_t new_solution_fee =
           curr_solution.recalculateSolution(instance, copy_curr_solution);
 
       if (new_solution_fee < curr_solution_fee) {
-        curr_solution.updateSolution(instance, copy_curr_solution);
+        curr_solution.updateSolution(instance, copy_curr_solution, new_solution_fee);
         optimized = true;
         curr_solution_fee = new_solution_fee;
       } else {
@@ -38,7 +38,7 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
 bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   std::vector<size_t> copy_curr_solution = curr_solution.getSolution();
   bool optimized = false;
-  double curr_solution_fee = curr_solution.getSolutionFee();
+  int32_t curr_solution_fee = curr_solution.getSolutionFee();
 
   for (int i = 0; i < (int)copy_curr_solution.size(); i++) {
     for (int j = 0; j < (int)copy_curr_solution.size() - 1; j++) {
@@ -50,7 +50,7 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
                                     reinsertion_insert_index,
                                 value_to_change);
 
-      double new_solution_fee =
+      int32_t new_solution_fee =
           curr_solution.recalculateSolution(instance, copy_curr_solution);
 
       if (new_solution_fee < curr_solution_fee) {
@@ -84,9 +84,9 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
   vector<size_t> best_sequence;
 
   // Save first solution cost
-  double first_cost = solution.getSolutionFee();
-  double old_cost = first_cost;
-  double new_cost;
+  int32_t first_cost = solution.getSolutionFee();
+  int32_t old_cost = first_cost;
+  int32_t new_cost;
 
   // Change from first element because it's the first arc, exhaustive in that it
   // tries every single combination
@@ -114,9 +114,7 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
   // After testing, change solution to the lowest cost found, if it got any
   // lower than when the solution came in as input
   if (old_cost < first_cost) {
-    solution.setSolutionFee(
-        solution.recalculateSolution(instance, best_sequence));
-    solution.setSequence(best_sequence);
+    solution.updateSolution(instance, best_sequence, old_cost);
 
     return true;
   }
@@ -210,8 +208,8 @@ Solution Disturbance(Instance &instance, Solution &solution) {
 Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
                              Instance &instance) {
   Solution best_of_all_solution;
-  best_of_all_solution.setSolutionFee(INFINITY);
-  float_t previous_solution_fee = std::numeric_limits<float_t>::max();
+  best_of_all_solution.setSolutionFee(std::numeric_limits<int32_t>::max());
+  int32_t previous_solution_fee = std::numeric_limits<int32_t>::max();
 
   for (int i = 0; i < max_iters; i++) {
     // First build a viable solution
