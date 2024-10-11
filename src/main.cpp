@@ -164,32 +164,66 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
 }
 
 /**
+ * @brief Returns a radnom value inbetween min and max
+ * 
+ * @param min min value
+ * @param max max value
+ * @return int 
+ */
+int BoundedRand(int min, int max)
+{
+  return min + rand() % (max - min + 1);
+}
+
+/**
  * @brief Disturbs the solution so as to make it not fall into a local best
- * pitfall
+ * pitfall (Double Bridge disturbance)
  *
  * @param instance  instance object
  * @param solution  solution object
  * @return disturbed solution
  */
-Solution Disturbance(Instance &instance, Solution &solution) {
-  // Swaps
-  int swap_index_i, swap_index_j;
-  vector<size_t> new_sequence = solution.getSolution();
+Solution Disturbance(Instance &instance, Solution &solution)
+{
+  vector<size_t> copied_sequence = solution.getSolution();
+  int sequence_size = instance.getQuantityOfRequests();
 
-  swap_index_i = rand() % new_sequence.size();
+  // Lengh should vary from 2 to (dimension / 10)
+  int segment_max_length = ceil(instance.getQuantityOfRequests() / 10.0);
 
-  while (true) {
-    swap_index_j = rand() % new_sequence.size();
+  // Indexes of subsequences
+  int subseq_1_begin_index, subseq_1_end_index;
+  int subseq_2_begin_index, subseq_2_end_index;
 
-    if (swap_index_i != swap_index_j) {
-      break;
-    }
-  }
+  // First attributing indexes randomly, avoids sequence edges
+  subseq_1_begin_index = BoundedRand(1, sequence_size - segment_max_length - segment_max_length - 1);
+  subseq_1_end_index = BoundedRand(subseq_1_begin_index + 1, subseq_1_begin_index + segment_max_length - 1);
+  subseq_2_begin_index = BoundedRand(subseq_1_end_index + 1, sequence_size - segment_max_length);
+  subseq_2_end_index = BoundedRand(subseq_2_begin_index + 1, subseq_2_begin_index + segment_max_length - 1);
 
-  std::swap(new_sequence[swap_index_i], new_sequence[swap_index_j]);
+  // Making subsequences with randomly-chosen indexes
+  vector<int> subseq_1(copied_sequence.begin() + subseq_1_begin_index, copied_sequence.begin() + subseq_1_end_index);
+  vector<int> subseq_2(copied_sequence.begin() + subseq_2_begin_index, copied_sequence.begin() + subseq_2_end_index);
 
-  // Recalc cost with disturbed solution
-  solution.updateSolution(instance, new_sequence);
+  //Calc'ing lengths of subseqs and space among them
+  int subseq_1_length = subseq_1_end_index - subseq_1_begin_index;
+  int inbetween_subseqs_length = subseq_2_begin_index - subseq_1_end_index;
+  int subseq_2_length = subseq_2_end_index - subseq_2_begin_index;
+
+  // Actually swapping subsequences
+  // Putting subseq_2 into subseq_1's previous space
+  copied_sequence.erase(copied_sequence.begin() + subseq_1_begin_index, copied_sequence.begin() + subseq_1_end_index);
+  copied_sequence.insert(copied_sequence.begin() + subseq_1_begin_index, subseq_2.begin(), subseq_2.end());
+
+  // Putting subseq_1 into subseq_2's previous space
+  copied_sequence.erase(copied_sequence.begin() + subseq_1_begin_index + subseq_2_length + inbetween_subseqs_length,
+                        copied_sequence.begin() + subseq_1_begin_index + subseq_2_length + inbetween_subseqs_length + subseq_2_length);
+
+  copied_sequence.insert(copied_sequence.begin() + subseq_1_begin_index + subseq_2_length + inbetween_subseqs_length,
+                         subseq_1.begin(), subseq_1.end());
+
+  // Recalculating fee/cost with disturbed sol
+  solution.updateSolution(instance, copied_sequence);
 
   return solution;
 }
@@ -238,9 +272,9 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
       }
 
       // Disturbance to help solution not fall into a local best pitfall
-      if (curr_iter_solution.getSolutionFee() == previous_solution_fee) {
-        curr_iter_solution = Disturbance(instance, curr_iter_solution);
-      }
+      //if (curr_iter_solution.getSolutionFee() == previous_solution_fee) {
+        curr_iter_solution = Disturbance(instance, curr_best_solution);
+      //}
 
       previous_solution_fee = curr_iter_solution.getSolutionFee();
       curr_iter_counter_ILS++;
