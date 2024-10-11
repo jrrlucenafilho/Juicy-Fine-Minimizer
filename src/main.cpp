@@ -185,6 +185,7 @@ int BoundedRand(int min, int max)
  */
 Solution Disturbance(Instance &instance, Solution &solution)
 {
+  Solution disturbed_solution;
   vector<size_t> copied_sequence = solution.getSolution();
   int sequence_size = instance.getQuantityOfRequests();
 
@@ -206,7 +207,7 @@ Solution Disturbance(Instance &instance, Solution &solution)
   vector<int> subseq_2(copied_sequence.begin() + subseq_2_begin_index, copied_sequence.begin() + subseq_2_end_index);
 
   //Calc'ing lengths of subseqs and space among them
-  int subseq_1_length = subseq_1_end_index - subseq_1_begin_index;
+  //int subseq_1_length = subseq_1_end_index - subseq_1_begin_index; //not needed for calcs
   int inbetween_subseqs_length = subseq_2_begin_index - subseq_1_end_index;
   int subseq_2_length = subseq_2_end_index - subseq_2_begin_index;
 
@@ -223,9 +224,9 @@ Solution Disturbance(Instance &instance, Solution &solution)
                          subseq_1.begin(), subseq_1.end());
 
   // Recalculating fee/cost with disturbed sol
-  solution.updateSolution(instance, copied_sequence);
+  disturbed_solution.updateSolution(instance, copied_sequence);
 
-  return solution;
+  return disturbed_solution;
 }
 
 // ILS metaheuristic func
@@ -242,7 +243,6 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
                              Instance &instance) {
   Solution best_of_all_solution;
   best_of_all_solution.setSolutionFee(std::numeric_limits<int32_t>::max());
-  int32_t previous_solution_fee = std::numeric_limits<int32_t>::max();
 
   for (int i = 0; i < max_iters; i++) {
     // First build a viable solution
@@ -272,11 +272,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
       }
 
       // Disturbance to help solution not fall into a local best pitfall
-      //if (curr_iter_solution.getSolutionFee() == previous_solution_fee) {
-        curr_iter_solution = Disturbance(instance, curr_best_solution);
-      //}
-
-      previous_solution_fee = curr_iter_solution.getSolutionFee();
+      curr_iter_solution = Disturbance(instance, curr_best_solution);
       curr_iter_counter_ILS++;
     }
 
