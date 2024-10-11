@@ -165,7 +165,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
 
 /**
  * @brief Returns a radnom value inbetween min and max
- * 
+ * @warning doens't work on ex_instance: it's too small of an instance. Gotts put an if conditional if testing it on that one 
  * @param min min value
  * @param max max value
  * @return int 
