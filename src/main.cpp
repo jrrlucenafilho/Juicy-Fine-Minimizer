@@ -165,7 +165,6 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
 
 /**
  * @brief Returns a radnom value inbetween min and max
- * @warning doesn't work on ex_instance: it's too small of an instance. Gotts put an if conditional if testing it on that one 
  * @param min min value
  * @param max max value
  * @return int 
@@ -196,11 +195,11 @@ Solution Disturbance(Instance &instance, Solution &solution)
   int subseq_1_begin_index, subseq_1_end_index;
   int subseq_2_begin_index, subseq_2_end_index;
 
-  // First attributing indexes randomly, avoids sequence edges
-  subseq_1_begin_index = BoundedRand(1, sequence_size - segment_max_length - segment_max_length - 1);
-  subseq_1_end_index = BoundedRand(subseq_1_begin_index + 1, subseq_1_begin_index + segment_max_length - 1);
-  subseq_2_begin_index = BoundedRand(subseq_1_end_index + 1, sequence_size - segment_max_length);
-  subseq_2_end_index = BoundedRand(subseq_2_begin_index + 1, subseq_2_begin_index + segment_max_length - 1);
+  // First attributing indexes randomly
+  subseq_1_begin_index = BoundedRand(0, sequence_size - segment_max_length - segment_max_length);
+  subseq_1_end_index = BoundedRand(subseq_1_begin_index, subseq_1_begin_index + segment_max_length);
+  subseq_2_begin_index = BoundedRand(subseq_1_end_index, sequence_size - segment_max_length);
+  subseq_2_end_index = BoundedRand(subseq_2_begin_index, subseq_2_begin_index + segment_max_length);
 
   // Making subsequences with randomly-chosen indexes
   vector<int> subseq_1(copied_sequence.begin() + subseq_1_begin_index, copied_sequence.begin() + subseq_1_end_index);
