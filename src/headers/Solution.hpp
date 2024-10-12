@@ -7,6 +7,7 @@
 #define SOLUTION_HPP
 
 #include "Instance.hpp"
+#include "DoublyLinkedList.hpp"
 #include <cmath>
 #include <cstddef>
 #include <exception>
@@ -35,7 +36,7 @@ public:
   /**
    * @brief The vector of indices representing the solution.
    */
-  std::vector<size_t> fruit_order;
+  DoublyLinkedList fruit_order;
 
   /**
    * @brief Default constructor.
@@ -63,13 +64,6 @@ public:
                              int32_t delivery_time_limit);
 
   /**
-   * @brief Get the solution as a vector of indices.
-   *
-   * @return The solution as a vector of indices.
-   */
-  std::vector<size_t> getSolution();
-
-  /**
    * @brief Get the fee of the solution in float format.
    *
    * @return The fee of the solution in float format.
@@ -82,7 +76,7 @@ public:
    * @param instance The instance associated with the solution.
    * @param new_solution The new vector of fruits representing the path.
    */
-  void updateSolution(Instance &instance, std::vector<size_t> new_solution);
+  void updateSolution(Instance &instance, DoublyLinkedList new_solution);
 
   /**
    * @brief Update the solution with a new path.
@@ -92,7 +86,7 @@ public:
    * @param solution_fee The solution fee of the new path
    */
   void updateSolution(Instance &instance,
-                                std::vector<size_t> new_solution,
+                                DoublyLinkedList new_solution,
                                 float solution_fee);
 
   /**
@@ -110,7 +104,7 @@ public:
    * @return The new solution fee.
    */
   int32_t recalculateSolution(Instance &instance,
-                               std::vector<size_t> solution);
+                               DoublyLinkedList &solution);
 
   /**
    * @brief Set the solution fee.
@@ -119,21 +113,7 @@ public:
    */
   void setSolutionFee(int32_t new_fee);
 
-  /**
-   * @brief Returns time passed up to a fruit located in index (in solution
-   * sequence)
-   *
-   * @param index index of fruit in solution sequence
-   * @param instance instance object
-   * @return int time passed until this fruit's been concluded being processed
-   */
-  int getConclusionTimeUpToIndex(int index, Instance &instance);
-
-  void reverseSubsequence(int index_begin, int index_end);
-
-  void setSequence(std::vector<size_t> new_sequence) {
-    this->fruit_order = new_sequence;
-  }
+  void setSequence(DoublyLinkedList new_sequence);
 
 private:
   /**

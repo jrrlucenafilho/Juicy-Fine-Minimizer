@@ -8,7 +8,7 @@ TEST(SolutionTest, ShouldCreateSolution) {
 
   solution.createSolution(instance);
 
-  ASSERT_EQ(solution.getSolution().size(), 5);
+  ASSERT_EQ(solution.fruit_order.size(), 5);
 }
 
 TEST(SolutionTest, ShouldUseGreedyAlgorithmWhenCreateSolution) {
@@ -16,14 +16,12 @@ TEST(SolutionTest, ShouldUseGreedyAlgorithmWhenCreateSolution) {
   Solution solution;
 
   solution.createSolution(instance);
-  
-  std::vector<size_t> sol = solution.getSolution();
 
-  ASSERT_EQ(sol[0], 0);
-  ASSERT_EQ(sol[1], 1);
-  ASSERT_EQ(sol[2], 2);
-  ASSERT_EQ(sol[3], 3);
-  ASSERT_EQ(sol[4], 4);
+  ASSERT_EQ(solution.fruit_order.front()->value, 0);
+  ASSERT_EQ(solution.fruit_order.front()->next->value, 1);
+  ASSERT_EQ(solution.fruit_order.front()->next->next->value, 2);
+  ASSERT_EQ(solution.fruit_order.front()->next->next->next->value, 3);
+  ASSERT_EQ(solution.fruit_order.front()->next->next->next->next->value, 4);
 }
 
 TEST(SolutionTest, ShouldUseGreedyAlgorithmAndCorrectFeeWhenCreateSolution) {

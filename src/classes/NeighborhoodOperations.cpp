@@ -11,13 +11,13 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
   int32_t curr_solution_fee = curr_solution.getSolutionFee();
   int32_t new_solution_fee;
 
-  size_t first_index_swap = 0;
-  size_t last_index_swap = 0;
+  Node *first_index_swap = 0;
+  Node *last_index_swap = 0;
   int32_t best_solution_fee = curr_solution_fee;
 
-  for (size_t i = 0; i < curr_solution.getSolution().size(); i++) {
-    for (size_t j = i + 1; j < curr_solution.getSolution().size(); j++) {
-      std::swap(curr_solution.fruit_order[i], curr_solution.fruit_order[j]);
+  for (Node *i = curr_solution.fruit_order.front(); i != nullptr; i = i->next) {
+    for (Node *j = i->next; j != nullptr; j = j->next) {
+      curr_solution.fruit_order.swap(i, j);
 
       curr_solution.recalculateSolution(instance);
 
@@ -31,14 +31,15 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
         optimized = true;
       }
 
-      std::swap(curr_solution.fruit_order[i], curr_solution.fruit_order[j]);
+      curr_solution.fruit_order.swap(i, j);
     }
   }
 
-  if (first_index_swap != last_index_swap) {
-    std::swap(curr_solution.fruit_order[first_index_swap], curr_solution.fruit_order[last_index_swap]);
-    curr_solution.setSolutionFee(best_solution_fee);
+  if (first_index_swap != last_index_swap && optimized) {
+    curr_solution.fruit_order.swap(first_index_swap, last_index_swap);
   }
+
+  curr_solution.setSolutionFee(best_solution_fee);
 
   return optimized;
 }
@@ -46,171 +47,190 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
 bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   bool optimized = false;
 
-  size_t index_to_remove = 0;
-  size_t index_to_reinsert = 0;
-  uint32_t optimum_value_to_change = 0;
+  Node *index_to_remove = nullptr;
+  Node *index_to_reinsert = nullptr;
 
   int32_t curr_solution_fee = curr_solution.getSolutionFee();
 
   int32_t optimum_solution_fee = curr_solution_fee;
 
-  for (size_t i = 0; i < curr_solution.fruit_order.size(); i++) {
-    for (size_t j = 0; j < curr_solution.fruit_order.size() - 1; j++) {
-      size_t reinsertion_insert_index = j;
-      uint32_t value_to_change = curr_solution.fruit_order[i];
+  for (Node *i = curr_solution.fruit_order.front(); i != nullptr; i = i->next) {
+    for (Node *j = curr_solution.fruit_order.front();
+         j != curr_solution.fruit_order.back(); j = j->next) {
+      if (i == j)
+        continue;
 
-      curr_solution.fruit_order.erase(curr_solution.fruit_order.begin() + i);
-      curr_solution.fruit_order.insert(curr_solution.fruit_order.begin() +
-                                           reinsertion_insert_index,
-                                       value_to_change);
+      Node *reinsertion_insert_index = j;
+      Node *initial_front_node = i->next;
+      Node *initial_back_node = i->prev;
+
+      curr_solution.fruit_order.reinsert_before(j, i);
 
       curr_solution.recalculateSolution(instance);
 
       if (curr_solution.getSolutionFee() < optimum_solution_fee) {
         index_to_remove = i;
         index_to_reinsert = reinsertion_insert_index;
-        optimum_value_to_change = value_to_change;
         optimum_solution_fee = curr_solution.getSolutionFee();
 
         optimized = true;
       }
 
-      curr_solution.fruit_order.erase(curr_solution.fruit_order.begin() +
-                                      reinsertion_insert_index);
-      curr_solution.fruit_order.insert(curr_solution.fruit_order.begin() + i,
-                                       value_to_change);
+      if (initial_front_node) {
+        curr_solution.fruit_order.reinsert_before(initial_front_node, i);
+      } else {
+        curr_solution.fruit_order.reinsert_after(initial_back_node, i);
+      }
     }
   }
 
-  if (index_to_remove != index_to_reinsert) {
-    curr_solution.fruit_order.erase(curr_solution.fruit_order.begin() +
-                                    index_to_remove);
-    curr_solution.fruit_order.insert(curr_solution.fruit_order.begin() +
-                                         index_to_reinsert,
-                                     optimum_value_to_change);
-
-    curr_solution.setSolutionFee(optimum_solution_fee);
+  if (index_to_remove != index_to_reinsert && optimized) {
+    curr_solution.fruit_order.reinsert_before(index_to_reinsert,
+                                              index_to_remove);
   }
+
+  curr_solution.setSolutionFee(optimum_solution_fee);
 
   return optimized;
 }
 
-bool BestImprovementOrOpt2(Instance &instance, Solution &solution)
-{
-  vector<size_t> curr_sequence = solution.getSolution();
-
-  // Sequence that'll yield the lowest cost among all others in this neighborhood
-  vector<size_t> best_sequence = curr_sequence;
-
-  // Holds the sequence that'll be reinserted somewhere else
-  vector<size_t> re_subseq(2);
-
+bool BestImprovementOrOpt2(Instance &instance, Solution &solution) {
   int32_t initial_cost = solution.getSolutionFee();
+
   int32_t best_cost = initial_cost;
+  Node *best_first_el = nullptr;
+  Node *best_reinsertion_position = nullptr;
+
   int32_t new_cost;
 
-  for(int i = 0; i < (int)instance.getQuantityOfRequests() - 1; i++){
-    for(int j = 0; j <= (int)instance.getQuantityOfRequests(); j++){
+  for (Node *i = solution.fruit_order.front(); i != solution.fruit_order.back();
+       i = i->next) {
+    for (Node *j = solution.fruit_order.front(); j != nullptr; j = j->next) {
       // Skip invalid positions
-      if((j == i) || (j == i + 1)){
+      if ((j == i) || (j == i->next)) {
         continue;
       }
-      // First attribute subseq that'll be removed
-      re_subseq[0] = curr_sequence[i];
-      re_subseq[1] = curr_sequence[i + 1];
+      Node *next_value = i->next;
+      Node *initial_next_value = nullptr;
 
-      // Calculate distances to curr_sequence.begin()
-      auto dist_j = std::distance(curr_sequence.begin(), curr_sequence.begin() + j);
+      if (i != solution.fruit_order.back()->prev)
+        initial_next_value = i->next->next;
 
-      // Erase the subsequence
-      curr_sequence.erase(curr_sequence.begin() + i, curr_sequence.begin() + i + 2);
+      Node *initial_back_node = i->prev;
 
-      // Adjust the insertion point if necessary
-      if(j > i){
-          dist_j -= 2;
-      }
-
-      // Insert the subseq at new position
-      curr_sequence.insert(curr_sequence.begin() + dist_j, re_subseq.begin(), re_subseq.end());
+      solution.fruit_order.reinsert_before(j, i);
+      solution.fruit_order.reinsert_before(j, next_value);
 
       // Getting new cost after this move
-      new_cost = solution.recalculateSolution(instance, curr_sequence);
+      new_cost = solution.recalculateSolution(instance, solution.fruit_order);
 
       // Keep track of best sequence and it's cost
-      if(new_cost < best_cost){
+      if (new_cost < best_cost) {
         best_cost = new_cost;
-        best_sequence = curr_sequence;
+        best_first_el = i;
+        best_reinsertion_position = j;
       }
 
-      // Revert the changes to curr_sequence
-      curr_sequence = solution.getSolution();
+      if (initial_next_value) {
+        // Redo the reinsertion operation
+        solution.fruit_order.reinsert_before(initial_next_value, i);
+        solution.fruit_order.reinsert_before(initial_next_value, next_value);
+      } else {
+        solution.fruit_order.reinsert_after(initial_back_node, next_value);
+        solution.fruit_order.reinsert_after(initial_back_node, i);
+      }
     }
   }
 
-  // Update the solution if it's found a cost better than when it came in as input
-  // So i only need to change it once
-  if(best_cost < initial_cost){
-    solution.updateSolution(instance, best_sequence, best_cost);
+  // Update the solution if it's found a cost better than when it came in as
+  // input So i only need to change it once
+  if (best_cost < initial_cost) {
+    Node *next_value = best_first_el->next;
+
+    solution.fruit_order.reinsert_before(best_reinsertion_position,
+                                         best_first_el);
+    solution.fruit_order.reinsert_before(best_reinsertion_position, next_value);
+
+    solution.setSolutionFee(best_cost);
+
     return true;
   }
+
+  solution.setSolutionFee(best_cost);
 
   return false;
 }
 
 bool BestImprovementOrOpt3(Instance &instance, Solution &solution) {
-    vector<size_t> curr_sequence = solution.getSolution();
-    vector<size_t> best_sequence = curr_sequence;
-    vector<size_t> re_subseq(3);
+  int32_t initial_cost = solution.getSolutionFee();
 
-    int32_t initial_cost = solution.getSolutionFee();
-    int32_t best_cost = initial_cost;
-    int32_t new_cost;
+  int32_t best_cost = initial_cost;
+  Node *best_first_el = nullptr;
+  Node *best_reinsertion_position = nullptr;
 
-    for(int i = 0; i < (int)instance.getQuantityOfRequests() - 2; ++i){
-        for(int j = 0; j <= (int)instance.getQuantityOfRequests(); ++j){
-            if((j == i) || (j == i + 1) || (j == i + 2)){
-              continue;
-            }
+  int32_t new_cost;
 
-            // First attribute subseq that'll be removed
-            re_subseq[0] = curr_sequence[i];
-            re_subseq[1] = curr_sequence[i + 1];
-            re_subseq[2] = curr_sequence[i + 2];
+  for (Node *i = solution.fruit_order.front();
+       i != solution.fruit_order.back()->prev; i = i->next) {
+    for (Node *j = solution.fruit_order.front(); j != nullptr; j = j->next) {
+      // Skip invalid positions
+      if ((j == i) || (j == i->next) || (j == i->next->next)) {
+        continue;
+      }
+      Node *initial_next_value = i->next->next->next;
+      Node *initial_back_node = i->prev;
+      Node *next_value_1 = i->next;
+      Node *next_value_2 = i->next->next;
 
-            // Calculate distances to curr_sequence.begin()
-            auto dist_j = std::distance(curr_sequence.begin(), curr_sequence.begin() + j);
+      solution.fruit_order.reinsert_before(j, i);
+      solution.fruit_order.reinsert_before(j, next_value_1);
+      solution.fruit_order.reinsert_before(j, next_value_2);
 
-            // Erase the subsequence
-            curr_sequence.erase(curr_sequence.begin() + i, curr_sequence.begin() + i + 3);
+      // Getting new cost after this move
+      new_cost = solution.recalculateSolution(instance, solution.fruit_order);
 
-            // Adjust the insertion point if necessary
-            if (j > i) {
-               dist_j -= 3;
-            }
+      // Keep track of best sequence and it's cost
+      if (new_cost < best_cost) {
+        best_cost = new_cost;
+        best_first_el = i;
+        best_reinsertion_position = j;
+      }
 
-            // Insert the subseq at new position
-            curr_sequence.insert(curr_sequence.begin() + dist_j, re_subseq.begin(), re_subseq.end());
-
-            // Getting new cost after this move
-            new_cost = solution.recalculateSolution(instance, curr_sequence);
-
-            // Update the best sequence if the new cost is lower
-            if(new_cost < best_cost){
-                best_cost = new_cost;
-                best_sequence = curr_sequence;
-            }
-
-            // Revert the changes to curr_sequence
-            curr_sequence = solution.getSolution();
-        }
+      if (initial_next_value) {
+        // Redo the reinsertion operation
+        // Redo the reinsertion operation
+        solution.fruit_order.reinsert_before(initial_next_value, i);
+        solution.fruit_order.reinsert_before(initial_next_value, next_value_1);
+        solution.fruit_order.reinsert_before(initial_next_value, next_value_2);
+      } else {
+        solution.fruit_order.reinsert_after(initial_back_node, next_value_2);
+        solution.fruit_order.reinsert_after(initial_back_node, next_value_1);
+        solution.fruit_order.reinsert_after(initial_back_node, i);
+      }
     }
+  }
 
-    if(best_cost < initial_cost){
-        solution.updateSolution(instance, best_sequence, best_cost);
-        return true;
-    }
+  // Update the solution if it's found a cost better than when it came in as
+  // input So i only need to change it once
+  if (best_cost < initial_cost) {
+    Node *next_value_1 = best_first_el->next;
+    Node *next_value_2 = best_first_el->next->next;
 
-    return false;
+    solution.fruit_order.reinsert_before(best_reinsertion_position,
+                                         best_first_el);
+    solution.fruit_order.reinsert_before(best_reinsertion_position,
+                                         next_value_1);
+    solution.fruit_order.reinsert_before(best_reinsertion_position,
+                                         next_value_2);
+
+    solution.setSolutionFee(best_cost);
+
+    return true;
+  }
+
+  solution.setSolutionFee(best_cost);
+
+  return false;
 }
 
 /**
@@ -222,44 +242,46 @@ bool BestImprovementOrOpt3(Instance &instance, Solution &solution) {
  * @returns is_optimized bool that indicates if solution has been optimized
  */
 bool BestImprovement2Opt(Instance &instance, Solution &solution) {
-  vector<size_t> new_sequence = solution.getSolution();
-  vector<size_t> best_sequence;
-
   // Save first solution cost
   int32_t first_cost = solution.getSolutionFee();
   int32_t best_cost = first_cost;
   int32_t new_cost;
 
+  Node *begin_reverse_best = nullptr;
+  Node *end_reverse_best = nullptr;
+
   // Change from first element because it's the first arc, exhaustive in that it
   // tries every single combination
-  for (int i = 1; i < (int)instance.getQuantityOfRequests(); i++) {
-    for (int j = i + 2; j < (int)instance.getQuantityOfRequests(); j++) {
-      // Reverse subsequence in fruit order
-      reverse(new_sequence.begin() + i, new_sequence.begin() + j);
+  for (Node *i = solution.fruit_order.front()->next;
+       i != solution.fruit_order.back(); i = i->next) {
+    for (Node *j = i->next->next; j != nullptr; j = j->next) {
+      solution.fruit_order.reverse(i, j);
 
       // Calculate new cost
-      new_cost = solution.recalculateSolution(instance, new_sequence);
+      new_cost = solution.recalculateSolution(instance, solution.fruit_order);
 
       // Compare costs, and attribute new_cost and new_sequence if new_cost is
       // lower
       if (new_cost < best_cost) {
         best_cost = new_cost;
-        best_sequence = new_sequence;
-      } else {
-        // So i always compare it to the input solution, and not last iter's
-        // 2-opt'ed solution
-        new_sequence = solution.getSolution();
+        begin_reverse_best = i;
+        end_reverse_best = j;
       }
+
+      solution.fruit_order.reverse(i, j);
     }
   }
 
   // After testing, change solution to the lowest cost found, if it got any
   // lower than when the solution came in as input
   if (best_cost < first_cost) {
-    solution.updateSolution(instance, best_sequence, best_cost);
+    solution.fruit_order.reverse(begin_reverse_best, end_reverse_best);
+    solution.setSolutionFee(best_cost);
 
     return true;
   }
+
+  solution.setSolutionFee(best_cost);
 
   return false;
 }
@@ -275,7 +297,8 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
  * @param curr_solution pre-built solution
  */
 void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
-  vector<int> neighborhood_structures = {SWAP, TWO_OPT, OR_OPT, OR_OPT_2, OR_OPT_3};
+  vector<int> neighborhood_structures = {SWAP, TWO_OPT, OR_OPT, OR_OPT_2,
+                                         OR_OPT_3};
   bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
@@ -314,12 +337,9 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
  * @brief Returns a radnom value inbetween min and max
  * @param min min value
  * @param max max value
- * @return int 
+ * @return int
  */
-int BoundedRand(int min, int max)
-{
-  return min + rand() % (max - min + 1);
-}
+int BoundedRand(int min, int max) { return min + rand() % (max - min); }
 
 /**
  * @brief Disturbs the solution so as to make it not fall into a local best
@@ -329,10 +349,7 @@ int BoundedRand(int min, int max)
  * @param solution  solution object
  * @return disturbed solution
  */
-Solution Disturbance(Instance &instance, Solution &solution)
-{
-  Solution disturbed_solution;
-  vector<size_t> copied_sequence = solution.getSolution();
+Solution Disturbance(Instance &instance, Solution &solution) {
   int sequence_size = instance.getQuantityOfRequests();
 
   // Lengh should vary from 2 to (dimension / 10)
@@ -342,37 +359,69 @@ Solution Disturbance(Instance &instance, Solution &solution)
   int subseq_1_begin_index, subseq_1_end_index;
   int subseq_2_begin_index, subseq_2_end_index;
 
+  Node *subseq_1_begin_node = nullptr;
+  Node *subseq_1_end_node = nullptr;
+
+  Node *subseq_2_begin_node = nullptr;
+  Node *subseq_2_end_node = nullptr;
+
   // First attributing indexes randomly
-  subseq_1_begin_index = BoundedRand(0, sequence_size - segment_max_length - segment_max_length);
-  subseq_1_end_index = BoundedRand(subseq_1_begin_index, subseq_1_begin_index + segment_max_length);
-  subseq_2_begin_index = BoundedRand(subseq_1_end_index, sequence_size - segment_max_length);
-  subseq_2_end_index = BoundedRand(subseq_2_begin_index, subseq_2_begin_index + segment_max_length);
+  subseq_1_begin_index =
+      BoundedRand(0, sequence_size - segment_max_length - segment_max_length);
+  subseq_1_end_index = BoundedRand(subseq_1_begin_index,
+                                   subseq_1_begin_index + segment_max_length);
+  subseq_2_begin_index =
+      BoundedRand(subseq_1_end_index, sequence_size - segment_max_length);
+  subseq_2_end_index = BoundedRand(subseq_2_begin_index,
+                                   subseq_2_begin_index + segment_max_length);
 
-  // Making subsequences with randomly-chosen indexes
-  vector<int> subseq_1(copied_sequence.begin() + subseq_1_begin_index, copied_sequence.begin() + subseq_1_end_index);
-  vector<int> subseq_2(copied_sequence.begin() + subseq_2_begin_index, copied_sequence.begin() + subseq_2_end_index);
+  int32_t counter = 0;
+  for (Node *i = solution.fruit_order.front(); i != nullptr; i = i->next) {
+    if (counter == subseq_1_begin_index)
+      subseq_1_begin_node = i;
 
-  //Calc'ing lengths of subseqs and space among them
-  //int subseq_1_length = subseq_1_end_index - subseq_1_begin_index; //not needed for calcs
-  int inbetween_subseqs_length = subseq_2_begin_index - subseq_1_end_index;
-  int subseq_2_length = subseq_2_end_index - subseq_2_begin_index;
+    if (counter == subseq_1_end_index)
+      subseq_1_end_node = i;
 
-  // Actually swapping subsequences
-  // Putting subseq_2 into subseq_1's previous space
-  copied_sequence.erase(copied_sequence.begin() + subseq_1_begin_index, copied_sequence.begin() + subseq_1_end_index);
-  copied_sequence.insert(copied_sequence.begin() + subseq_1_begin_index, subseq_2.begin(), subseq_2.end());
+    if (counter == subseq_2_begin_index)
+      subseq_2_begin_node = i;
 
-  // Putting subseq_1 into subseq_2's previous space
-  copied_sequence.erase(copied_sequence.begin() + subseq_1_begin_index + subseq_2_length + inbetween_subseqs_length,
-                        copied_sequence.begin() + subseq_1_begin_index + subseq_2_length + inbetween_subseqs_length + subseq_2_length);
+    if (counter == subseq_2_end_index)
+      subseq_2_end_node = i;
 
-  copied_sequence.insert(copied_sequence.begin() + subseq_1_begin_index + subseq_2_length + inbetween_subseqs_length,
-                         subseq_1.begin(), subseq_1.end());
+    if (counter == subseq_2_end_index)
+      break;
+
+    counter++;
+  }
+
+  Node *next_from_end_subseq_1 = subseq_1_end_node->next;
+
+  Node *next_from_end_subseq_2 = nullptr;
+
+  if (subseq_2_end_node->next) {
+    next_from_end_subseq_2 = subseq_2_end_node->next;
+  }
+
+  for (Node *i = next_from_end_subseq_1; i != next_from_end_subseq_1;
+       i = i->next) {
+    if (subseq_2_end_node->next) {
+      solution.fruit_order.reinsert_before(next_from_end_subseq_2, i);
+    } else {
+      // Inserting in the tail of the second
+      solution.fruit_order.reinsert_before(subseq_2_begin_node, i);
+    }
+  }
+
+  for (Node *i = next_from_end_subseq_2; i != next_from_end_subseq_2;
+       i = i->next) {
+    solution.fruit_order.reinsert_before(next_from_end_subseq_1, i);
+  }
 
   // Recalculating fee/cost with disturbed sol
-  disturbed_solution.updateSolution(instance, copied_sequence);
+  solution.recalculateSolution(instance);
 
-  return disturbed_solution;
+  return solution;
 }
 
 // ILS metaheuristic func

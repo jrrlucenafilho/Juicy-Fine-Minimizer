@@ -15,13 +15,17 @@ class DoublyLinkedList {
 public:
   DoublyLinkedList();
 
-  ~DoublyLinkedList();
+  // ~DoublyLinkedList();
 
   Node *front();
 
   Node *back();
 
   size_t size();
+
+  void clear();
+
+  bool find(size_t value);
 
   void push_back(size_t value);
 
@@ -36,6 +40,8 @@ public:
   void reverse(Node *begin, Node *end);
 
   void pop_back();
+
+  void operator=(DoublyLinkedList const &obj);
 
 private:
   size_t length;

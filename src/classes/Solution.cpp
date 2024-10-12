@@ -44,15 +44,15 @@ void Solution::createSolution(Instance &instance) {
     } else {
       for (int j = 0; j < instance.getQuantityOfRequests(); j++) {
         // If the element is already in the solution then does not use it
-        if (std::find(this->fruit_order.begin(), this->fruit_order.end(), j) !=
-            this->fruit_order.end()) {
+        if (this->fruit_order.find(j)) {
           continue;
         }
 
         fee_value = this->calculateFeeValue(
             instance.getLateFee(j),
             instance.getProductionTime(j) +
-                instance.getTransitionTime(this->fruit_order.back() + 1, j) +
+                instance.getTransitionTime(this->fruit_order.back()->value + 1,
+                                           j) +
                 this->elapsed_time,
             instance.getDeliveryTimeLimit(j));
 
@@ -61,7 +61,8 @@ void Solution::createSolution(Instance &instance) {
           current_max_fee = fee_value;
           current_elapsed_time =
               this->elapsed_time + instance.getProductionTime(j) +
-              instance.getTransitionTime(this->fruit_order.back() + 1, j);
+              instance.getTransitionTime(this->fruit_order.back()->value + 1,
+                                         j);
         }
       }
     }
@@ -80,19 +81,16 @@ int32_t Solution::calculateFeeValue(int32_t fee_per_minute,
   return current_solution_fee;
 }
 
-std::vector<size_t> Solution::getSolution() { return this->fruit_order; }
-
 int32_t Solution::getSolutionFee() { return this->solution_fee; }
 
 void Solution::updateSolution(Instance &instance,
-                              std::vector<size_t> new_solution) {
+                              DoublyLinkedList new_solution) {
   this->fruit_order = new_solution;
 
   this->recalculateSolution(instance);
 }
 
-void Solution::updateSolution(Instance &instance,
-                              std::vector<size_t> new_solution,
+void Solution::updateSolution(Instance &instance, DoublyLinkedList new_solution,
                               float solution_fee) {
   this->fruit_order = new_solution;
 
@@ -104,31 +102,29 @@ void Solution::recalculateSolution(Instance &instance) {
   this->elapsed_time = 0;
   int32_t current_solution_fee = 0;
 
-  for (size_t i = 0; i < this->fruit_order.size(); i++) {
+  for (Node *i = this->fruit_order.front(); i != nullptr; i = i->next) {
     current_solution_fee = this->solution_fee;
 
-    if (i == 0) {
-      current_solution_fee += calculateFeeValue(
-          instance.getLateFee(this->fruit_order[0]),
-          instance.getProductionTime(this->fruit_order[0]) +
-              instance.getTransitionTime(0, this->fruit_order[0]),
-          instance.getDeliveryTimeLimit(this->fruit_order[0]));
+    if (i == this->fruit_order.front()) {
+      current_solution_fee +=
+          calculateFeeValue(instance.getLateFee(i->value),
+                            instance.getProductionTime(i->value) +
+                                instance.getTransitionTime(0, i->value),
+                            instance.getDeliveryTimeLimit(i->value));
 
-      this->elapsed_time = instance.getProductionTime(this->fruit_order[0]) +
-                            instance.getTransitionTime(0, this->fruit_order[0]);
+      this->elapsed_time = instance.getProductionTime(i->value) +
+                           instance.getTransitionTime(0, i->value);
     } else {
       current_solution_fee += calculateFeeValue(
-          instance.getLateFee(this->fruit_order[i]),
-          instance.getProductionTime(i) +
-              instance.getTransitionTime(this->fruit_order[i - 1] + 1,
-                                         this->fruit_order[i]) +
+          instance.getLateFee(i->value),
+          instance.getProductionTime(i->value) +
+              instance.getTransitionTime(i->prev->value + 1, i->value) +
               this->elapsed_time,
-          instance.getDeliveryTimeLimit(this->fruit_order[i]));
+          instance.getDeliveryTimeLimit(i->value));
 
       this->elapsed_time +=
-          instance.getProductionTime(this->fruit_order[i]) +
-          instance.getTransitionTime(this->fruit_order[i - 1] + 1,
-                                     this->fruit_order[i]);
+          instance.getProductionTime(i->value) +
+          instance.getTransitionTime(i->prev->value + 1, i->value);
     }
 
     this->solution_fee = 0 > current_solution_fee ? 0 : current_solution_fee;
@@ -136,34 +132,33 @@ void Solution::recalculateSolution(Instance &instance) {
 }
 
 int32_t Solution::recalculateSolution(Instance &instance,
-                                      std::vector<size_t> solution) {
+                                      DoublyLinkedList &solution) {
   int32_t solution_fee = 0;
   int32_t elapsed_time = 0;
   int32_t current_solution_fee = 0;
 
-  for (size_t i = 0; i < this->fruit_order.size(); i++) {
+  for (Node *i = solution.front(); i != nullptr; i = i->next) {
     current_solution_fee = solution_fee;
 
-    if (i == 0) {
+    if (i == solution.front()) {
       current_solution_fee +=
-          calculateFeeValue(instance.getLateFee(solution[0]),
-                            instance.getProductionTime(solution[0]) +
-                                instance.getTransitionTime(0, solution[0]),
-                            instance.getDeliveryTimeLimit(solution[0]));
+          calculateFeeValue(instance.getLateFee(i->value),
+                            instance.getProductionTime(i->value) +
+                                instance.getTransitionTime(0, i->value),
+                            instance.getDeliveryTimeLimit(i->value));
 
-      elapsed_time = instance.getProductionTime(solution[0]) +
-                           instance.getTransitionTime(0, solution[0]);
+      elapsed_time = instance.getProductionTime(i->value) +
+                     instance.getTransitionTime(0, i->value);
     } else {
       current_solution_fee += calculateFeeValue(
-          instance.getLateFee(solution[i]),
-          instance.getProductionTime(i) +
-              instance.getTransitionTime(solution[i - 1] + 1, solution[i]) +
+          instance.getLateFee(i->value),
+          instance.getProductionTime(i->value) +
+              instance.getTransitionTime(i->prev->value + 1, i->value) +
               elapsed_time,
-          instance.getDeliveryTimeLimit(solution[i]));
+          instance.getDeliveryTimeLimit(i->value));
 
-      elapsed_time +=
-          instance.getProductionTime(solution[i]) +
-          instance.getTransitionTime(solution[i - 1] + 1, solution[i]);
+      elapsed_time += instance.getProductionTime(i->value) +
+                      instance.getTransitionTime(i->prev->value + 1, i->value);
     }
 
     solution_fee = 0 > current_solution_fee ? 0 : current_solution_fee;
@@ -174,21 +169,6 @@ int32_t Solution::recalculateSolution(Instance &instance,
 
 void Solution::setSolutionFee(int32_t new_fee) { this->solution_fee = new_fee; }
 
-// Returns time passed up to a fruit located in index (in solution sequence)
-int Solution::getConclusionTimeUpToIndex(int index, Instance &instance) {
-  int conclusion_time = 10; // Constant first-fruit production time
-  std::vector<size_t> &sequence = this->fruit_order;
-
-  // Add up first fruit's production time
-  conclusion_time += instance.getProductionTime(sequence[0]);
-
-  for (int i = 1; i <= index; i++) {
-    conclusion_time += instance.getTransitionTime(sequence[i - 1], sequence[i]);
-  }
-
-  return conclusion_time;
-}
-
-void Solution::reverseSubsequence(int index_begin, int index_end) {
-  reverse(fruit_order.begin() + index_begin, fruit_order.begin() + index_end);
+void Solution::setSequence(DoublyLinkedList new_sequence) {
+  this->fruit_order = new_sequence;
 }

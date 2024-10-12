@@ -10,17 +10,33 @@ DoublyLinkedList::DoublyLinkedList() {
   this->length = 0;
 }
 
-DoublyLinkedList::~DoublyLinkedList() {
-  while (this->head) {
-    this->pop_back();
-  }
-}
+// DoublyLinkedList::~DoublyLinkedList() {
+//   while (this->head) {
+//     this->pop_back();
+//   }
+// }
 
 Node *DoublyLinkedList::front() { return this->head; }
 
 Node *DoublyLinkedList::back() { return this->tail; }
 
 size_t DoublyLinkedList::size() { return this->length; }
+
+void DoublyLinkedList::clear() {
+  while (this->head) {
+    this->pop_back();
+  }
+}
+
+bool DoublyLinkedList::find(size_t value) {
+  for (Node *i = this->head; i != nullptr; i = i->next) {
+    if (i->value == value) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 void DoublyLinkedList::push_back(size_t value) {
   Node *node = (Node *)malloc(sizeof(Node));
@@ -73,6 +89,10 @@ void DoublyLinkedList::push_front(size_t value) {
 }
 
 void DoublyLinkedList::swap(Node *first_el, Node *second_el) {
+  if (first_el == nullptr || second_el == nullptr) {
+    return;
+  }
+
   size_t temp = first_el->value;
   first_el->value = second_el->value;
   second_el->value = temp;
@@ -80,6 +100,9 @@ void DoublyLinkedList::swap(Node *first_el, Node *second_el) {
 
 void DoublyLinkedList::reinsert_before(Node *before_of,
                                        Node *node_to_reinsert) {
+  if (before_of == node_to_reinsert)
+    return;
+
   if (node_to_reinsert == this->head)
     this->head = node_to_reinsert->next;
 
@@ -104,6 +127,9 @@ void DoublyLinkedList::reinsert_before(Node *before_of,
 }
 
 void DoublyLinkedList::reinsert_after(Node *after_of, Node *node_to_reinsert) {
+  if (after_of == node_to_reinsert)
+    return;
+
   if (node_to_reinsert == this->head) {
     this->head = node_to_reinsert->next;
   }
@@ -134,10 +160,15 @@ void DoublyLinkedList::reinsert_after(Node *after_of, Node *node_to_reinsert) {
 
 void DoublyLinkedList::reverse(Node *begin, Node *end) {
   Node *node_to_begin = begin;
-  Node *node_to_end = end;
+  Node *node_to_end = end->prev;
 
-  while (node_to_begin != node_to_end) {
+  while (true) {
     swap(node_to_begin, node_to_end);
+
+    if (node_to_begin == node_to_end || (node_to_begin->next == node_to_end &&
+                                         node_to_end->prev == node_to_begin)) {
+      break;
+    }
 
     node_to_begin = node_to_begin->next;
     node_to_end = node_to_end->prev;
@@ -150,11 +181,22 @@ void DoublyLinkedList::pop_back() {
   if (!this->tail)
     return;
 
-  if (this->tail == this->head)
-    this->head = old_head->prev;
+  if (this->tail == this->head) {
+    this->head = nullptr;
+    this->tail = nullptr;
+  } else {
+    this->tail = old_head->prev;
+  }
 
-  this->tail = old_head->prev;
   this->length--;
 
   free(old_head);
+}
+
+void DoublyLinkedList::operator=(DoublyLinkedList const &obj) {
+  this->clear();
+
+  for (Node *i = obj.head; i != nullptr; i = i->next) {
+    this->push_back(i->value);
+  }
 }
