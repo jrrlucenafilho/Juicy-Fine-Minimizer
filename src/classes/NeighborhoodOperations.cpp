@@ -13,7 +13,7 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
 
   size_t first_index_swap = 0;
   size_t last_index_swap = 0;
-  int32_t best_solution_fee = 0;
+  int32_t best_solution_fee = curr_solution_fee;
 
   for (size_t i = 0; i < curr_solution.getSolution().size(); i++) {
     for (size_t j = i + 1; j < curr_solution.getSolution().size(); j++) {
@@ -23,7 +23,7 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
 
       new_solution_fee = curr_solution.getSolutionFee();
 
-      if (new_solution_fee < curr_solution_fee) {
+      if (new_solution_fee < best_solution_fee) {
         first_index_swap = i;
         last_index_swap = j;
         best_solution_fee = new_solution_fee;
@@ -49,9 +49,10 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   size_t index_to_remove = 0;
   size_t index_to_reinsert = 0;
   uint32_t optimum_value_to_change = 0;
-  int32_t optimum_solution_fee = 0;
 
   int32_t curr_solution_fee = curr_solution.getSolutionFee();
+
+  int32_t optimum_solution_fee = curr_solution_fee;
 
   for (size_t i = 0; i < curr_solution.fruit_order.size(); i++) {
     for (size_t j = 0; j < curr_solution.fruit_order.size() - 1; j++) {
@@ -65,7 +66,7 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
 
       curr_solution.recalculateSolution(instance);
 
-      if (curr_solution.getSolutionFee() < curr_solution_fee) {
+      if (curr_solution.getSolutionFee() < optimum_solution_fee) {
         index_to_remove = i;
         index_to_reinsert = reinsertion_insert_index;
         optimum_value_to_change = value_to_change;
@@ -113,8 +114,8 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
 
   // Change from first element because it's the first arc, exhaustive in that it
   // tries every single combination
-  for (int i = 1; i < (int)instance.getQuantityOfRequests(); i++) {
-    for (int j = i + 2; j < (int)instance.getQuantityOfRequests(); j++) {
+  for (size_t i = 1; i < instance.getQuantityOfRequests(); i++) {
+    for (size_t j = i + 2; j < instance.getQuantityOfRequests(); j++) {
       // Reverse subsequence in fruit order
       reverse(new_sequence.begin() + i, new_sequence.begin() + j);
 

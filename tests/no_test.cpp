@@ -48,11 +48,11 @@ TEST(NoTest, ShouldSwapIfCostIsHigherAfterSwapOperation) {
 
   BestImprovementSwap(instance, solution);
 
-  ASSERT_EQ(solution.getSolution()[0], 4);
-  ASSERT_EQ(solution.getSolution()[1], 0);
+  ASSERT_EQ(solution.getSolution()[0], 0);
+  ASSERT_EQ(solution.getSolution()[1], 3);
   ASSERT_EQ(solution.getSolution()[2], 2);
   ASSERT_EQ(solution.getSolution()[3], 1);
-  ASSERT_EQ(solution.getSolution()[4], 3);
+  ASSERT_EQ(solution.getSolution()[4], 4);
 }
 
 TEST(NoTest, NoTest_ShouldReturnFalseIfCostIsHigherAfterOrOptOperation) {
@@ -100,9 +100,61 @@ TEST(NoTest, ShouldSwapIfCostIsHigherAfterOrOptOperation) {
 
   BestImprovementOrOpt(instance, solution);
 
+  ASSERT_EQ(solution.getSolution()[0], 3);
+  ASSERT_EQ(solution.getSolution()[1], 2);
+  ASSERT_EQ(solution.getSolution()[2], 1);
+  ASSERT_EQ(solution.getSolution()[3], 4);
+  ASSERT_EQ(solution.getSolution()[4], 0);
+}
+
+TEST(NoTest, NoTest_ShouldReturnFalseIfCostIsHigherAfter2OptOperation) {
+  Instance instance("../instances/ex_instance");
+  Solution solution;
+
+  solution.createSolution(instance);
+
+  bool res = BestImprovement2Opt(instance, solution);
+
+  ASSERT_FALSE(res);
+}
+
+TEST(NoTest, NoTest_ShouldNotChangeIfCostIsHigherAfter2OptOperation) {
+  Instance instance("../instances/ex_instance");
+  Solution solution;
+
+  solution.createSolution(instance);
+
+  bool res = BestImprovement2Opt(instance, solution);
+
+  ASSERT_EQ(solution.getSolution()[0], 0);
+  ASSERT_EQ(solution.getSolution()[1], 1);
+  ASSERT_EQ(solution.getSolution()[2], 2);
+  ASSERT_EQ(solution.getSolution()[3], 3);
+  ASSERT_EQ(solution.getSolution()[4], 4);
+}
+
+TEST(NoTest, ShouldReturnTrueIfCostIsHigherAfter2OptOperation) {
+  Instance instance("../instances/ex_instance");
+  Solution solution;
+
+  solution.updateSolution(instance, {4, 3, 2, 1, 0});
+
+  bool res = BestImprovement2Opt(instance, solution);
+
+  ASSERT_TRUE(res);
+}
+
+TEST(NoTest, ShouldSwapIfCostIsHigherAfter2OptOperation) {
+  Instance instance("../instances/ex_instance");
+  Solution solution;
+
+  solution.updateSolution(instance, {4, 3, 2, 1, 0});
+
+  BestImprovement2Opt(instance, solution);
+
   ASSERT_EQ(solution.getSolution()[0], 4);
-  ASSERT_EQ(solution.getSolution()[1], 0);
+  ASSERT_EQ(solution.getSolution()[1], 2);
   ASSERT_EQ(solution.getSolution()[2], 3);
-  ASSERT_EQ(solution.getSolution()[3], 2);
-  ASSERT_EQ(solution.getSolution()[4], 1);
+  ASSERT_EQ(solution.getSolution()[3], 1);
+  ASSERT_EQ(solution.getSolution()[4], 0);
 }
