@@ -4,6 +4,7 @@ set(SOURCES
   ../src/classes/Instance.cpp
   ../src/classes/Solution.cpp
   ../src/classes/NeighborhoodOperations.cpp
+  ../src/classes/DoublyLinkedList.cpp
 )
 set(INCLUDES ../src/headers)
 
@@ -29,9 +30,18 @@ target_link_libraries(
   GTest::gtest_main
 )
 target_include_directories(no_test PUBLIC ${INCLUDES})
-add_dependencies(solution_test copy_instances)
+add_dependencies(no_test copy_instances)
+
+add_executable(dll_test dll_test.cpp ${SOURCES})
+target_link_libraries(
+  dll_test
+  GTest::gtest_main
+)
+target_include_directories(dll_test PUBLIC ${INCLUDES})
+add_dependencies(dll_test copy_instances)
 
 include(GoogleTest)
 gtest_discover_tests(instance_test)
 gtest_discover_tests(solution_test)
 gtest_discover_tests(no_test)
+gtest_discover_tests(dll_test)
