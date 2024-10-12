@@ -1,9 +1,12 @@
 #include "NeighborhoodOperations.hpp"
+#include "Benchmarker.hpp"
 #include "vector"
 #include <algorithm>
 #include <limits>
 
 using namespace std;
+
+extern benchmarker_t benchmarker;
 
 // Neighborhood structures best improvement calc
 bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
@@ -396,6 +399,9 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
     Solution curr_best_solution;
 
     curr_iter_solution.createSolution(instance);
+
+    benchmarker.constructive_heuristic_avg_cost += curr_iter_solution.getSolutionFee();
+
     curr_best_solution = curr_iter_solution; // In the beginning, first sol is
                                              // currently the best one
 

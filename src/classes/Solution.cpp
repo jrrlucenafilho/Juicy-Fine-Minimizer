@@ -1,8 +1,11 @@
 #include "Solution.hpp"
 #include "Instance.hpp"
+#include "Benchmarker.hpp"
 #include <algorithm>
 #include <iostream>
 #include <limits>
+
+extern benchmarker_t benchmarker;
 
 const char *InstanceNotLoadedException::what() {
   return "Instance is not loaded!";
@@ -17,6 +20,9 @@ void Solution::createSolution(Instance &instance) {
   if (!instance.isInstanceLoaded()) {
     throw InstanceNotLoadedException();
   }
+
+  benchmarker.start_time = std::chrono::high_resolution_clock::now();
+
   this->solution_fee = 0;
   this->elapsed_time = 0;
   this->fruit_order.clear();
@@ -70,6 +76,9 @@ void Solution::createSolution(Instance &instance) {
     this->solution_fee += 0 > current_max_fee ? 0 : current_max_fee;
     this->elapsed_time = current_elapsed_time;
   }
+
+  benchmarker.end_time = std::chrono::high_resolution_clock::now();
+  benchmarker.constructive_heuristic_avg_elapsed_time += benchmarker.end_time - benchmarker.start_time;
 }
 
 int32_t Solution::calculateFeeValue(int32_t fee_per_minute,
