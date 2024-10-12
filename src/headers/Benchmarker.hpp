@@ -21,6 +21,10 @@ struct benchmarker_t {
     std::chrono::duration<double> rvnd_avg_elapsed_time{0.0};
     std::chrono::duration<double> metaheuristic_avg_elapsed_time{0.0};
 
+    // Utils for time tracking
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+    std::chrono::time_point<std::chrono::high_resolution_clock> end_time;
+
     // Member function to calculate the gap
     double CalculateGap(int32_t input_cost, int32_t optimal_cost) {
         if (optimal_cost == 0) return 0.0; // Avoid division by zero
