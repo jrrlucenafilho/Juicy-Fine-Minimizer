@@ -11,6 +11,10 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
   int32_t curr_solution_fee = curr_solution.getSolutionFee();
   int32_t new_solution_fee;
 
+  size_t first_index_swap = 0;
+  size_t last_index_swap = 0;
+  int32_t best_solution_fee = 0;
+
   for (size_t i = 0; i < curr_solution.getSolution().size(); i++) {
     for (size_t j = i + 1; j < curr_solution.getSolution().size(); j++) {
       std::swap(curr_solution.fruit_order[i], curr_solution.fruit_order[j]);
@@ -20,48 +24,71 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
       new_solution_fee = curr_solution.getSolutionFee();
 
       if (new_solution_fee < curr_solution_fee) {
+        first_index_swap = i;
+        last_index_swap = j;
+        best_solution_fee = new_solution_fee;
+
         optimized = true;
-        curr_solution_fee = new_solution_fee;
-      } else {
-        std::swap(curr_solution.fruit_order[i], curr_solution.fruit_order[j]);
       }
+
+      std::swap(curr_solution.fruit_order[i], curr_solution.fruit_order[j]);
     }
+  }
+
+  if (first_index_swap != last_index_swap) {
+    std::swap(curr_solution.fruit_order[first_index_swap], curr_solution.fruit_order[last_index_swap]);
+    curr_solution.setSolutionFee(best_solution_fee);
   }
 
   return optimized;
 }
 
 bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
-  std::vector<size_t> copy_curr_solution = curr_solution.getSolution();
   bool optimized = false;
+
+  size_t index_to_remove = 0;
+  size_t index_to_reinsert = 0;
+  uint32_t optimum_value_to_change = 0;
+  int32_t optimum_solution_fee = 0;
+
   int32_t curr_solution_fee = curr_solution.getSolutionFee();
 
-  for (int i = 0; i < (int)copy_curr_solution.size(); i++) {
-    for (int j = 0; j < (int)copy_curr_solution.size() - 1; j++) {
+  for (size_t i = 0; i < curr_solution.fruit_order.size(); i++) {
+    for (size_t j = 0; j < curr_solution.fruit_order.size() - 1; j++) {
       size_t reinsertion_insert_index = j;
-      uint32_t value_to_change = copy_curr_solution[i];
+      uint32_t value_to_change = curr_solution.fruit_order[i];
 
-      copy_curr_solution.erase(copy_curr_solution.begin() + i);
-      copy_curr_solution.insert(copy_curr_solution.begin() +
-                                    reinsertion_insert_index,
-                                value_to_change);
+      curr_solution.fruit_order.erase(curr_solution.fruit_order.begin() + i);
+      curr_solution.fruit_order.insert(curr_solution.fruit_order.begin() +
+                                           reinsertion_insert_index,
+                                       value_to_change);
 
-      int32_t new_solution_fee =
-          curr_solution.recalculateSolution(instance, copy_curr_solution);
+      curr_solution.recalculateSolution(instance);
 
-      if (new_solution_fee < curr_solution_fee) {
-        curr_solution.updateSolution(instance, copy_curr_solution,
-                                     new_solution_fee);
-        curr_solution_fee = curr_solution.getSolutionFee();
+      if (curr_solution.getSolutionFee() < curr_solution_fee) {
+        index_to_remove = i;
+        index_to_reinsert = reinsertion_insert_index;
+        optimum_value_to_change = value_to_change;
+        optimum_solution_fee = curr_solution.getSolutionFee();
 
         optimized = true;
       }
 
-      copy_curr_solution.erase(copy_curr_solution.begin() +
-                               reinsertion_insert_index);
-      copy_curr_solution.insert(copy_curr_solution.begin() + i,
-                                value_to_change);
+      curr_solution.fruit_order.erase(curr_solution.fruit_order.begin() +
+                                      reinsertion_insert_index);
+      curr_solution.fruit_order.insert(curr_solution.fruit_order.begin() + i,
+                                       value_to_change);
     }
+  }
+
+  if (index_to_remove != index_to_reinsert) {
+    curr_solution.fruit_order.erase(curr_solution.fruit_order.begin() +
+                                    index_to_remove);
+    curr_solution.fruit_order.insert(curr_solution.fruit_order.begin() +
+                                         index_to_reinsert,
+                                     optimum_value_to_change);
+
+    curr_solution.setSolutionFee(optimum_solution_fee);
   }
 
   return optimized;
