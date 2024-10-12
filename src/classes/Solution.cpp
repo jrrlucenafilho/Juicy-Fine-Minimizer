@@ -119,7 +119,7 @@ void Solution::recalculateSolution(Instance &instance) {
     } else {
       current_solution_fee += calculateFeeValue(
           instance.getLateFee(this->fruit_order[i]),
-          instance.getProductionTime(i) +
+          instance.getProductionTime(fruit_order[i]) +
               instance.getTransitionTime(this->fruit_order[i - 1] + 1,
                                          this->fruit_order[i]) +
               this->elapsed_time,
@@ -156,7 +156,7 @@ int32_t Solution::recalculateSolution(Instance &instance,
     } else {
       current_solution_fee += calculateFeeValue(
           instance.getLateFee(solution[i]),
-          instance.getProductionTime(i) +
+          instance.getProductionTime(solution[i]) +
               instance.getTransitionTime(solution[i - 1] + 1, solution[i]) +
               elapsed_time,
           instance.getDeliveryTimeLimit(solution[i]));
