@@ -1,6 +1,7 @@
 #ifndef NEIGHBORHOODOPERATIONS_HPP
 #define NEIGHBORHOODOPERATIONS_HPP
 
+#include "Benchmarker.hpp"
 #include "Instance.hpp"
 #include "Solution.hpp"
 
