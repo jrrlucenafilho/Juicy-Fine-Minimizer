@@ -87,20 +87,28 @@ bool BestImprovementOrOpt2(Instance &instance, Solution &solution)
   int32_t new_cost;
 
   for(int i = 0; i < (int)instance.getQuantityOfRequests() - 1; i++){
-    for(int j = 0; (int)instance.getQuantityOfRequests(); j++){
+    for(int j = 0; j <= (int)instance.getQuantityOfRequests(); j++){
       // Skip invalid positions
-      if(j == i || j == i + 1){
+      if((j == i) || (j == i + 1)){
         continue;
       }
       // First attribute subseq that'll be removed
       re_subseq[0] = curr_sequence[i];
       re_subseq[1] = curr_sequence[i + 1];
 
+      // Calculate distances to curr_sequence.begin()
+      auto dist_j = std::distance(curr_sequence.begin(), curr_sequence.begin() + j);
+
       // Erase the subsequence
       curr_sequence.erase(curr_sequence.begin() + i, curr_sequence.begin() + i + 2);
 
+      // Adjust the insertion point if necessary
+      if(j > i){
+          dist_j -= 2;
+      }
+
       // Insert the subseq at new position
-      curr_sequence.insert(curr_sequence.begin() + j, re_subseq.begin(), re_subseq.end());
+      curr_sequence.insert(curr_sequence.begin() + dist_j, re_subseq.begin(), re_subseq.end());
 
       // Getting new cost after this move
       new_cost = solution.recalculateSolution(instance, curr_sequence);
@@ -110,6 +118,9 @@ bool BestImprovementOrOpt2(Instance &instance, Solution &solution)
         best_cost = new_cost;
         best_sequence = curr_sequence;
       }
+
+      // Revert the changes to curr_sequence
+      curr_sequence = solution.getSolution();
     }
   }
 
@@ -133,7 +144,7 @@ bool BestImprovementOrOpt3(Instance &instance, Solution &solution) {
     int32_t new_cost;
 
     for(int i = 0; i < (int)instance.getQuantityOfRequests() - 2; ++i){
-        for(int j = 0; j < (int)instance.getQuantityOfRequests(); ++j){
+        for(int j = 0; j <= (int)instance.getQuantityOfRequests(); ++j){
             if((j == i) || (j == i + 1) || (j == i + 2)){
               continue;
             }
@@ -144,13 +155,15 @@ bool BestImprovementOrOpt3(Instance &instance, Solution &solution) {
             re_subseq[2] = curr_sequence[i + 2];
 
             // Calculate distances to curr_sequence.begin()
-            auto dist_i = std::distance(curr_sequence.begin(), curr_sequence.begin() + i);
             auto dist_j = std::distance(curr_sequence.begin(), curr_sequence.begin() + j);
 
             // Erase the subsequence
             curr_sequence.erase(curr_sequence.begin() + i, curr_sequence.begin() + i + 3);
 
-
+            // Adjust the insertion point if necessary
+            if (j > i) {
+               dist_j -= 3;
+            }
 
             // Insert the subseq at new position
             curr_sequence.insert(curr_sequence.begin() + dist_j, re_subseq.begin(), re_subseq.end());
@@ -243,7 +256,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
   bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
-    int rand_nh_num = 4;//rand() % neighborhood_structures.size();
+    int rand_nh_num = rand() % neighborhood_structures.size();
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
