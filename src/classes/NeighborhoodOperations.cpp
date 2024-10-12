@@ -95,6 +95,111 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   return optimized;
 }
 
+bool BestImprovementOrOpt2(Instance &instance, Solution &solution)
+{
+  vector<size_t> curr_sequence = solution.getSolution();
+
+  // Sequence that'll yield the lowest cost among all others in this neighborhood
+  vector<size_t> best_sequence = curr_sequence;
+
+  // Holds the sequence that'll be reinserted somewhere else
+  vector<size_t> re_subseq(2);
+
+  int32_t initial_cost = solution.getSolutionFee();
+  int32_t best_cost = initial_cost;
+  int32_t new_cost;
+
+  for(int i = 0; i < (int)instance.getQuantityOfRequests() - 1; i++){
+    for(int j = 0; (int)instance.getQuantityOfRequests(); j++){
+      // Skip invalid positions
+      if(j == i || j == i + 1){
+        continue;
+      }
+      // First attribute subseq that'll be removed
+      re_subseq[0] = curr_sequence[i];
+      re_subseq[1] = curr_sequence[i + 1];
+
+      // Erase the subsequence
+      curr_sequence.erase(curr_sequence.begin() + i, curr_sequence.begin() + i + 2);
+
+      // Insert the subseq at new position
+      curr_sequence.insert(curr_sequence.begin() + j, re_subseq.begin(), re_subseq.end());
+
+      // Getting new cost after this move
+      new_cost = solution.recalculateSolution(instance, curr_sequence);
+
+      // Keep track of best sequence and it's cost
+      if(new_cost < best_cost){
+        best_cost = new_cost;
+        best_sequence = curr_sequence;
+      }
+    }
+  }
+
+  // Update the solution if it's found a cost better than when it came in as input
+  // So i only need to change it once
+  if(best_cost < initial_cost){
+    solution.updateSolution(instance, best_sequence, best_cost);
+    return true;
+  }
+
+  return false;
+}
+
+bool BestImprovementOrOpt3(Instance &instance, Solution &solution) {
+    vector<size_t> curr_sequence = solution.getSolution();
+    vector<size_t> best_sequence = curr_sequence;
+    vector<size_t> re_subseq(3);
+
+    int32_t initial_cost = solution.getSolutionFee();
+    int32_t best_cost = initial_cost;
+    int32_t new_cost;
+
+    for(int i = 0; i < (int)instance.getQuantityOfRequests() - 2; ++i){
+        for(int j = 0; j < (int)instance.getQuantityOfRequests(); ++j){
+            if((j == i) || (j == i + 1) || (j == i + 2)){
+              continue;
+            }
+
+            // First attribute subseq that'll be removed
+            re_subseq[0] = curr_sequence[i];
+            re_subseq[1] = curr_sequence[i + 1];
+            re_subseq[2] = curr_sequence[i + 2];
+
+            // Calculate distances to curr_sequence.begin()
+            auto dist_i = std::distance(curr_sequence.begin(), curr_sequence.begin() + i);
+            auto dist_j = std::distance(curr_sequence.begin(), curr_sequence.begin() + j);
+
+            // Erase the subsequence
+            curr_sequence.erase(curr_sequence.begin() + i, curr_sequence.begin() + i + 3);
+
+
+
+            // Insert the subseq at new position
+            curr_sequence.insert(curr_sequence.begin() + dist_j, re_subseq.begin(), re_subseq.end());
+
+            // Getting new cost after this move
+            new_cost = solution.recalculateSolution(instance, curr_sequence);
+
+            // Update the best sequence if the new cost is lower
+            if(new_cost < best_cost){
+                best_cost = new_cost;
+                best_sequence = curr_sequence;
+            }
+
+            // Revert the changes to curr_sequence
+            curr_sequence = solution.getSolution();
+        }
+    }
+
+    if(best_cost < initial_cost){
+        solution.updateSolution(instance, best_sequence, best_cost);
+        return true;
+    }
+
+    return false;
+}
+
 /**
  * @brief exhaustively compares current solution against all possible 2-opt
  * neighborhood structure movements
@@ -109,13 +214,13 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
 
   // Save first solution cost
   int32_t first_cost = solution.getSolutionFee();
-  int32_t old_cost = first_cost;
+  int32_t best_cost = first_cost;
   int32_t new_cost;
 
   // Change from first element because it's the first arc, exhaustive in that it
   // tries every single combination
-  for (size_t i = 1; i < instance.getQuantityOfRequests(); i++) {
-    for (size_t j = i + 2; j < instance.getQuantityOfRequests(); j++) {
+  for (int i = 1; i < (int)instance.getQuantityOfRequests(); i++) {
+    for (int j = i + 2; j < (int)instance.getQuantityOfRequests(); j++) {
       // Reverse subsequence in fruit order
       reverse(new_sequence.begin() + i, new_sequence.begin() + j);
 
@@ -124,8 +229,8 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
 
       // Compare costs, and attribute new_cost and new_sequence if new_cost is
       // lower
-      if (new_cost < old_cost) {
-        old_cost = new_cost;
+      if (new_cost < best_cost) {
+        best_cost = new_cost;
         best_sequence = new_sequence;
       } else {
         // So i always compare it to the input solution, and not last iter's
@@ -137,8 +242,8 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
 
   // After testing, change solution to the lowest cost found, if it got any
   // lower than when the solution came in as input
-  if (old_cost < first_cost) {
-    solution.updateSolution(instance, best_sequence, old_cost);
+  if (best_cost < first_cost) {
+    solution.updateSolution(instance, best_sequence, best_cost);
 
     return true;
   }
@@ -157,19 +262,11 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
  * @param curr_solution pre-built solution
  */
 void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
-  vector<int> neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
+  vector<int> neighborhood_structures = {SWAP, TWO_OPT, OR_OPT, OR_OPT_2, OR_OPT_3};
   bool has_solution_improved = false;
 
-  // All this is relative to n60C instance
-  // TODO(Fix): Cost that gets here from the greedy algorithm is
-  // always 4.15766077e+10 And elapsed_time is always -933778592
-
-  // TODO(Fix): And no matter which bestImprovement() (except swap, and now
-  // except 2-opt) it goes into on the first iter The solution_fee always
-  // becomes -763126528 and elapsed_time stays as -933778592 on the firts iter
-
   while (!neighborhood_structures.empty()) {
-    int rand_nh_num = rand() % neighborhood_structures.size();
+    int rand_nh_num = 4;//rand() % neighborhood_structures.size();
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
@@ -181,12 +278,18 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
     case OR_OPT:
       has_solution_improved = BestImprovementOrOpt(instance, curr_solution);
       break;
+    case OR_OPT_2:
+      has_solution_improved = BestImprovementOrOpt2(instance, curr_solution);
+      break;
+    case OR_OPT_3:
+      has_solution_improved = BestImprovementOrOpt3(instance, curr_solution);
+      break;
     }
 
     // If sol has improved on any of these structures, it means there might
     // still be room for it to improve more
     if (has_solution_improved) {
-      neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
+      neighborhood_structures = {SWAP, TWO_OPT, OR_OPT, OR_OPT_2, OR_OPT_3};
     } else {
       neighborhood_structures.erase(neighborhood_structures.begin() +
                                     rand_nh_num);
@@ -195,34 +298,68 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
 }
 
 /**
+ * @brief Returns a radnom value inbetween min and max
+ * @param min min value
+ * @param max max value
+ * @return int 
+ */
+int BoundedRand(int min, int max)
+{
+  return min + rand() % (max - min + 1);
+}
+
+/**
  * @brief Disturbs the solution so as to make it not fall into a local best
- * pitfall
+ * pitfall (Double Bridge disturbance)
  *
  * @param instance  instance object
  * @param solution  solution object
  * @return disturbed solution
  */
-Solution Disturbance(Instance &instance, Solution &solution) {
-  // Swaps
-  int swap_index_i, swap_index_j;
-  vector<size_t> new_sequence = solution.getSolution();
+Solution Disturbance(Instance &instance, Solution &solution)
+{
+  Solution disturbed_solution;
+  vector<size_t> copied_sequence = solution.getSolution();
+  int sequence_size = instance.getQuantityOfRequests();
 
-  swap_index_i = rand() % new_sequence.size();
+  // Lengh should vary from 2 to (dimension / 10)
+  int segment_max_length = ceil(instance.getQuantityOfRequests() / 10.0);
 
-  while (true) {
-    swap_index_j = rand() % new_sequence.size();
+  // Indexes of subsequences
+  int subseq_1_begin_index, subseq_1_end_index;
+  int subseq_2_begin_index, subseq_2_end_index;
 
-    if (swap_index_i != swap_index_j) {
-      break;
-    }
-  }
+  // First attributing indexes randomly
+  subseq_1_begin_index = BoundedRand(0, sequence_size - segment_max_length - segment_max_length);
+  subseq_1_end_index = BoundedRand(subseq_1_begin_index, subseq_1_begin_index + segment_max_length);
+  subseq_2_begin_index = BoundedRand(subseq_1_end_index, sequence_size - segment_max_length);
+  subseq_2_end_index = BoundedRand(subseq_2_begin_index, subseq_2_begin_index + segment_max_length);
 
-  std::swap(new_sequence[swap_index_i], new_sequence[swap_index_j]);
+  // Making subsequences with randomly-chosen indexes
+  vector<int> subseq_1(copied_sequence.begin() + subseq_1_begin_index, copied_sequence.begin() + subseq_1_end_index);
+  vector<int> subseq_2(copied_sequence.begin() + subseq_2_begin_index, copied_sequence.begin() + subseq_2_end_index);
 
-  // Recalc cost with disturbed solution
-  solution.updateSolution(instance, new_sequence);
+  //Calc'ing lengths of subseqs and space among them
+  //int subseq_1_length = subseq_1_end_index - subseq_1_begin_index; //not needed for calcs
+  int inbetween_subseqs_length = subseq_2_begin_index - subseq_1_end_index;
+  int subseq_2_length = subseq_2_end_index - subseq_2_begin_index;
 
-  return solution;
+  // Actually swapping subsequences
+  // Putting subseq_2 into subseq_1's previous space
+  copied_sequence.erase(copied_sequence.begin() + subseq_1_begin_index, copied_sequence.begin() + subseq_1_end_index);
+  copied_sequence.insert(copied_sequence.begin() + subseq_1_begin_index, subseq_2.begin(), subseq_2.end());
+
+  // Putting subseq_1 into subseq_2's previous space
+  copied_sequence.erase(copied_sequence.begin() + subseq_1_begin_index + subseq_2_length + inbetween_subseqs_length,
+                        copied_sequence.begin() + subseq_1_begin_index + subseq_2_length + inbetween_subseqs_length + subseq_2_length);
+
+  copied_sequence.insert(copied_sequence.begin() + subseq_1_begin_index + subseq_2_length + inbetween_subseqs_length,
+                         subseq_1.begin(), subseq_1.end());
+
+  // Recalculating fee/cost with disturbed sol
+  disturbed_solution.updateSolution(instance, copied_sequence);
+
+  return disturbed_solution;
 }
 
 // ILS metaheuristic func
@@ -239,7 +376,6 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
                              Instance &instance) {
   Solution best_of_all_solution;
   best_of_all_solution.setSolutionFee(std::numeric_limits<int32_t>::max());
-  int32_t previous_solution_fee = std::numeric_limits<int32_t>::max();
 
   for (int i = 0; i < max_iters; i++) {
     // First build a viable solution
@@ -269,11 +405,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
       }
 
       // Disturbance to help solution not fall into a local best pitfall
-      if (curr_iter_solution.getSolutionFee() == previous_solution_fee) {
-        curr_iter_solution = Disturbance(instance, curr_iter_solution);
-      }
-
-      previous_solution_fee = curr_iter_solution.getSolutionFee();
+      curr_iter_solution = Disturbance(instance, curr_best_solution);
       curr_iter_counter_ILS++;
     }
 
