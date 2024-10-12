@@ -279,7 +279,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
     // If sol has improved on any of these structures, it means there might
     // still be room for it to improve more
     if (has_solution_improved) {
-      neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
+      neighborhood_structures = {SWAP, TWO_OPT, OR_OPT, OR_OPT_2, OR_OPT_3};
     } else {
       neighborhood_structures.erase(neighborhood_structures.begin() +
                                     rand_nh_num);
