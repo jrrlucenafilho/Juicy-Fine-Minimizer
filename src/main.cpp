@@ -7,7 +7,7 @@
 
 using namespace std;
 
-enum NeighborhoodStructure { SWAP, TWO_OPT, OR_OPT };
+enum NeighborhoodStructure { SWAP, TWO_OPT, OR_OPT, OR_OPT_2, OR_OPT_3 };
 
 // Neighborhood structures best improvement calc
 bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
@@ -72,6 +72,107 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   return optimized;
 }
 
+bool BestImprovementOrOpt2(Instance &instance, Solution &solution)
+{
+  vector<size_t> curr_sequence = solution.getSolution();
+
+  // Sequence that'll yield the lowest cost among all others in this neighborhood
+  vector<size_t> best_sequence = curr_sequence;
+
+  // Holds the sequence that'll be reinserted somewhere else
+  vector<size_t> re_subseq(2);
+
+  int32_t initial_cost = solution.getSolutionFee();
+  int32_t best_cost = initial_cost;
+  int32_t new_cost;
+
+  for(int i = 0; i < (int)instance.getQuantityOfRequests() - 1; i++){
+    for(int j = 0; (int)instance.getQuantityOfRequests(); j++){
+      // Skip invalid positions
+      if(j == i || j == i + 1){
+        continue;
+      }
+      // First attribute subseq that'll be removed
+      re_subseq[0] = curr_sequence[i];
+      re_subseq[1] = curr_sequence[i + 1];
+
+      // Erase the subsequence
+      curr_sequence.erase(curr_sequence.begin() + i, curr_sequence.begin() + i + 2);
+
+      // Insert the subseq at new position
+      curr_sequence.insert(curr_sequence.begin() + j, re_subseq.begin(), re_subseq.end());
+
+      // Getting new cost after this move
+      new_cost = solution.recalculateSolution(instance, curr_sequence);
+
+      // Keep track of best sequence and it's cost
+      if(new_cost < best_cost){
+        best_cost = new_cost;
+        best_sequence = curr_sequence;
+      }
+    }
+  }
+
+  // Update the solution if it's found a cost better than when it came in as input
+  // So i only need to change it once
+  if(best_cost < initial_cost){
+    solution.updateSolution(instance, best_sequence, best_cost);
+    return true;
+  }
+
+  return false;
+}
+
+bool BestImprovementOrOpt3(Instance &instance, Solution &solution) {
+    vector<size_t> curr_sequence = solution.getSolution();
+    vector<size_t> best_sequence = curr_sequence;
+    vector<size_t> re_subseq(3);
+
+    int32_t initial_cost = solution.getSolutionFee();
+    int32_t best_cost = initial_cost;
+    int32_t new_cost;
+
+    for(int i = 0; i < (int)instance.getQuantityOfRequests() - 2; ++i){
+        for(int j = 0; j < (int)instance.getQuantityOfRequests(); ++j){
+            if((j == i) || (j == i + 1) || (j == i + 2)){
+              continue;
+            }
+
+            // First attribute subseq that'll be removed
+            re_subseq[0] = curr_sequence[i];
+            re_subseq[1] = curr_sequence[i + 1];
+            re_subseq[2] = curr_sequence[i + 2];
+
+            // Erase the subsequence
+            curr_sequence.erase(curr_sequence.begin() + i, curr_sequence.begin() + i + 3);
+
+
+
+            // Insert the subseq at new position
+            curr_sequence.insert(curr_sequence.begin() + dist_j, re_subseq.begin(), re_subseq.end());
+
+            // Getting new cost after this move
+            new_cost = solution.recalculateSolution(instance, curr_sequence);
+
+            // Update the best sequence if the new cost is lower
+            if(new_cost < best_cost){
+                best_cost = new_cost;
+                best_sequence = curr_sequence;
+            }
+
+            // Revert the changes to curr_sequence
+            curr_sequence = solution.getSolution();
+        }
+    }
+
+    if(best_cost < initial_cost){
+        solution.updateSolution(instance, best_sequence, best_cost);
+        return true;
+    }
+
+    return false;
+}
+
 /**
  * @brief exhaustively compares current solution against all possible 2-opt
  * neighborhood structure movements
@@ -86,7 +187,7 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
 
   // Save first solution cost
   int32_t first_cost = solution.getSolutionFee();
-  int32_t old_cost = first_cost;
+  int32_t best_cost = first_cost;
   int32_t new_cost;
 
   // Change from first element because it's the first arc, exhaustive in that it
@@ -101,8 +202,8 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
 
       // Compare costs, and attribute new_cost and new_sequence if new_cost is
       // lower
-      if (new_cost < old_cost) {
-        old_cost = new_cost;
+      if (new_cost < best_cost) {
+        best_cost = new_cost;
         best_sequence = new_sequence;
       } else {
         // So i always compare it to the input solution, and not last iter's
@@ -114,8 +215,8 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
 
   // After testing, change solution to the lowest cost found, if it got any
   // lower than when the solution came in as input
-  if (old_cost < first_cost) {
-    solution.updateSolution(instance, best_sequence, old_cost);
+  if (best_cost < first_cost) {
+    solution.updateSolution(instance, best_sequence, best_cost);
 
     return true;
   }
@@ -134,11 +235,11 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
  * @param curr_solution pre-built solution
  */
 void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
-  vector<int> neighborhood_structures = {SWAP, TWO_OPT, OR_OPT};
+  vector<int> neighborhood_structures = {SWAP, TWO_OPT, OR_OPT, OR_OPT_2, OR_OPT_3};
   bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
-    int rand_nh_num = rand() % neighborhood_structures.size();
+    int rand_nh_num = 1;//rand() % neighborhood_structures.size();
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
@@ -149,6 +250,12 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
       break;
     case OR_OPT:
       has_solution_improved = BestImprovementOrOpt(instance, curr_solution);
+      break;
+    case OR_OPT_2:
+      has_solution_improved = BestImprovementOrOpt2(instance, curr_solution);
+      break;
+    case OR_OPT_3:
+      has_solution_improved = BestImprovementOrOpt3(instance, curr_solution);
       break;
     }
 
