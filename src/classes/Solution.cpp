@@ -21,8 +21,6 @@ void Solution::createSolution(Instance &instance) {
     throw InstanceNotLoadedException();
   }
 
-  benchmarker.constr_heuristic_start_time = std::chrono::high_resolution_clock::now();
-
   this->solution_fee = 0;
   this->elapsed_time = 0;
   this->fruit_order.clear();
@@ -76,10 +74,6 @@ void Solution::createSolution(Instance &instance) {
     this->solution_fee += 0 > current_max_fee ? 0 : current_max_fee;
     this->elapsed_time = current_elapsed_time;
   }
-
-  benchmarker.constr_heuristic_end_time = std::chrono::high_resolution_clock::now();
-  benchmarker.constructive_heuristic_avg_elapsed_time += (benchmarker.constr_heuristic_end_time 
-                                                         - benchmarker.constr_heuristic_start_time);
 }
 
 int32_t Solution::calculateFeeValue(int32_t fee_per_minute,
