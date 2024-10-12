@@ -3,6 +3,7 @@ enable_testing()
 set(SOURCES
   ../src/classes/Instance.cpp
   ../src/classes/Solution.cpp
+  ../src/classes/NeighborhoodOperations.cpp
 )
 set(INCLUDES ../src/headers)
 
@@ -22,6 +23,15 @@ target_link_libraries(
 target_include_directories(solution_test PUBLIC ${INCLUDES})
 add_dependencies(solution_test copy_instances)
 
+add_executable(no_test no_test.cpp ${SOURCES})
+target_link_libraries(
+  no_test
+  GTest::gtest_main
+)
+target_include_directories(no_test PUBLIC ${INCLUDES})
+add_dependencies(solution_test copy_instances)
+
 include(GoogleTest)
 gtest_discover_tests(instance_test)
 gtest_discover_tests(solution_test)
+gtest_discover_tests(no_test)

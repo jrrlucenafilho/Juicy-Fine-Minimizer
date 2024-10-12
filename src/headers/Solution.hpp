@@ -33,6 +33,11 @@ public:
 class Solution {
 public:
   /**
+   * @brief The vector of indices representing the solution.
+   */
+  std::vector<size_t> fruit_order;
+
+  /**
    * @brief Default constructor.
    */
   Solution();
@@ -131,11 +136,6 @@ public:
   }
 
 private:
-  /**
-   * @brief The vector of indices representing the solution.
-   */
-  std::vector<size_t> fruit_order;
-
   /**
    * @brief The total fee of the solution.
    */
