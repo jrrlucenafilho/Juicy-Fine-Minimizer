@@ -17,9 +17,9 @@ struct benchmarker_t {
     int32_t best_solution_cost;
 
     // Time tracking info
-    std::chrono::duration<double> constructive_heuristic_avg_elapsed_time;
-    std::chrono::duration<double> rvnd_avg_elapsed_time;
-    std::chrono::duration<double> metaheuristic_avg_elapsed_time;
+    std::chrono::duration<double> constructive_heuristic_avg_elapsed_time{0.0};
+    std::chrono::duration<double> rvnd_avg_elapsed_time{0.0};
+    std::chrono::duration<double> metaheuristic_avg_elapsed_time{0.0};
 
     // Member function to calculate the gap
     double CalculateGap(int32_t input_cost, int32_t optimal_cost) {
