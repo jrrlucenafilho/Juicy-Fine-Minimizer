@@ -143,6 +143,10 @@ bool BestImprovementOrOpt3(Instance &instance, Solution &solution) {
             re_subseq[1] = curr_sequence[i + 1];
             re_subseq[2] = curr_sequence[i + 2];
 
+            // Calculate distances to curr_sequence.begin()
+            auto dist_i = std::distance(curr_sequence.begin(), curr_sequence.begin() + i);
+            auto dist_j = std::distance(curr_sequence.begin(), curr_sequence.begin() + j);
+
             // Erase the subsequence
             curr_sequence.erase(curr_sequence.begin() + i, curr_sequence.begin() + i + 3);
 
@@ -239,7 +243,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
   bool has_solution_improved = false;
 
   while (!neighborhood_structures.empty()) {
-    int rand_nh_num = 1;//rand() % neighborhood_structures.size();
+    int rand_nh_num = 4;//rand() % neighborhood_structures.size();
 
     switch (neighborhood_structures[rand_nh_num]) {
     case SWAP:
