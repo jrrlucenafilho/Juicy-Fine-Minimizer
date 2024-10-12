@@ -86,7 +86,11 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < 10; i++) {
     srand(static_cast<unsigned int>(time(0)));
 
+    benchmarker.metaheuristic_start_time = std::chrono::high_resolution_clock::now();
     solution = IteratedLocalSearch(max_iters, max_iters_ILS, instance);
+    benchmarker.metaheuristic_end_time = std::chrono::high_resolution_clock::now();
+
+    benchmarker.metaheuristic_avg_elapsed_time += (benchmarker.metaheuristic_end_time - benchmarker.metaheuristic_start_time);
 
     benchmarker.metaheuristic_solution_avg_cost += solution.getSolutionFee();
 
