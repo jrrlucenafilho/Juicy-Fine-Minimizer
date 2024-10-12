@@ -22,17 +22,21 @@ std::string ExtractInstanceName(const std::string& text) {
 }
 
 // Print current iteration's solution and cost
-void PrintCurrentIteration(int iteration, const vector<size_t>& current_solution, int32_t current_cost) {
+void PrintCurrentIteration(int iteration, const vector<size_t>& curr_solution_sequence, int32_t current_cost) {
   std::cout << "============================================================================\n";
   std::cout << "Iteration: " << iteration << '\n';
-  std::cout << "Current Solution Sequence: ";
+  std::cout << "Solution Cost: " << current_cost << '\n';
+  std::cout << "Solution Sequence: ";
 
-  for (size_t element : current_solution) {
-      std::cout << element << ", ";
+  for (size_t i = 0; i < curr_solution_sequence.size(); i++) {
+      std::cout << curr_solution_sequence[i];
+
+      if (i != curr_solution_sequence.size() - 1) {
+          std::cout << ", ";
+      }
   }
 
   std::cout << '\n';
-  std::cout << "Current Solution Cost: " << current_cost << '\n';
   std::cout << "============================================================================\n";
 }
 
@@ -70,7 +74,6 @@ int main(int argc, char *argv[]) {
   // ILS-used vars
   int max_iters = 50;
   int max_iters_ILS;
-  int iters_costs_sum = 0;
 
   // Define upper limit for ILS execs (used same rule as ILS for TSP here)
   if (instance.getQuantityOfRequests() >= 150) {
@@ -85,21 +88,22 @@ int main(int argc, char *argv[]) {
 
     solution = IteratedLocalSearch(max_iters, max_iters_ILS, instance);
 
-    iters_costs_sum += solution.getSolutionFee();
+    benchmarker.metaheuristic_solution_avg_cost += solution.getSolutionFee();
 
-    // if (i == 0) {
-    //   best_solution_cost = solution.getSolutionFee();
-    //   best_solution_sequence = solution.getSolution();
-    //   best_solution_iteration = i;
-    // } else {
-    //   if (solution.getSolutionFee() < best_solution_cost) {
-    //     best_solution_cost = solution.getSolutionFee();
-    //     best_solution_sequence = solution.getSolution();
-    //     best_solution_iteration = i;
-    //   }
-    // }
+    // Keep track of best solution
+    if (i == 0) {
+      benchmarker.best_solution_cost = solution.getSolutionFee();
+      benchmarker.best_solution_sequence = solution.getSolution();
+      benchmarker.best_solution_iter = i;
+    } else {
+      if (solution.getSolutionFee() < benchmarker.best_solution_cost) {
+        benchmarker.best_solution_cost = solution.getSolutionFee();
+        benchmarker.best_solution_sequence = solution.getSolution();
+        benchmarker.best_solution_iter = i;
+      }
+    }
 
-    PrintCurrentIteration(i + 1, solution.getSolution(), solution.getSolutionFee());
+    PrintCurrentIteration(i, solution.getSolution(), solution.getSolutionFee());
   }
 
   benchmarker.printResults(instance_name, optimal_values_map[instance_name]);
