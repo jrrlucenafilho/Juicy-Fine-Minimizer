@@ -1,7 +1,7 @@
 # Define an array with all instance paths
 $instance_names = @(
     ".\instances\ex_instance.txt")
-#    ".\instances\n60A.txt"
+#    ".\instances\n60A.txt")
 #    ".\instances\n60B.txt",
 #    ".\instances\n60C.txt"
 #    ".\instances\n60D.txt",
@@ -19,7 +19,7 @@ $instance_names = @(
 $csvFilePath = ".\benchmark.csv"
 
 # Write the header to the CSV file
-$header = "instance;best_cost_found;MH_avg_cost;MH_avg_time;MH_GAP;RVND_avg_cost;RVND_avg_time;RVND_GAP;constr_heur_avg_cost;constr_heur_avg_time;constr_heur_GAP"
+$header = "instance;optimal_cost;best_cost_found;MH_avg_cost;MH_avg_time;MH_GAP;RVND_avg_cost;RVND_avg_time;RVND_GAP;constr_heur_avg_cost;constr_heur_avg_time;constr_heur_GAP"
 Set-Content -Path $csvFilePath -Value $header
 
 # Function to extract value from the results string
@@ -40,6 +40,7 @@ foreach ($instance in $instance_names) {
     Write-Host "Running instance: $instance"
 
     # Initialize variables
+    $optimal_cost = "N/A"
     $best_cost_found = "N/A"
     $MH_avg_cost = "N/A"
     $MH_avg_time = "N/A"
@@ -70,16 +71,17 @@ foreach ($instance in $instance_names) {
 
         # Extract values using regex patterns
         $inst_name = Extract-Value -results $results -pattern "Instance:\s*(\S+)"
+        $optimal_cost = Extract-Value -results $results -pattern "Optimal Cost:\s*(\d+)"
         $best_cost_found = Extract-Value -results $results -pattern "Best Solution Cost:\s*(\d+)"
-        $MH_avg_cost = Extract-Value -results $results -pattern "Metaheuristic Avg Cost:\s*([\d\.]+)"
-        $MH_avg_time = (Extract-Value -results $results -pattern "Metaheuristic Avg Time:\s*([\d\.e\-]+)") + " s"
-        $MH_GAP = (Extract-Value -results $results -pattern "Metaheuristic GAP:\s*([\d\.]+)") + " %"
-        $RVND_avg_cost = Extract-Value -results $results -pattern "RVND Avg Cost:\s*([\d\.]+)"
-        $RVND_avg_time = (Extract-Value -results $results -pattern "RVND Avg Time:\s*([\d\.e\-]+)") + " s"
-        $RVND_GAP = (Extract-Value -results $results -pattern "RVND GAP:\s*([\d\.]+)") + " %"
-        $constr_heur_avg_cost = Extract-Value -results $results -pattern "Constructive Heuristic Avg Cost:\s*([\d\.]+)"
-        $constr_heur_avg_time = (Extract-Value -results $results -pattern "Constructive Heuristic Avg Time:\s*([\d\.e\-]+)") + " s"
-        $constr_heur_GAP = (Extract-Value -results $results -pattern "Constructive Heuristic GAP:\s*([\d\.]+)") + " %"
+        $MH_avg_cost = Extract-Value -results $results -pattern "Metaheuristic Avg Cost:\s*([\d\.eE\+\-]+)"
+        $MH_avg_time = (Extract-Value -results $results -pattern "Metaheuristic Avg Time:\s*([\d\.eE\+\-]+)") + " s"
+        $MH_GAP = (Extract-Value -results $results -pattern "Metaheuristic GAP:\s*([\d\.\-]+)") + " %"
+        $RVND_avg_cost = Extract-Value -results $results -pattern "RVND Avg Cost:\s*([\d\.eE\+\-]+)"
+        $RVND_avg_time = (Extract-Value -results $results -pattern "RVND Avg Time:\s*([\d\.eE\+\-]+)") + " s"
+        $RVND_GAP = (Extract-Value -results $results -pattern "RVND GAP:\s*([\d\.\-]+)") + " %"
+        $constr_heur_avg_cost = Extract-Value -results $results -pattern "Constructive Heuristic Avg Cost:\s*([\d\.eE\+\-]+)"
+        $constr_heur_avg_time = (Extract-Value -results $results -pattern "Constructive Heuristic Avg Time:\s*([\d\.eE\+\-]+)") + " s"
+        $constr_heur_GAP = (Extract-Value -results $results -pattern "Constructive Heuristic GAP:\s*([\d\.\-]+)") + " %"
 
         # Create a CSV line
         $csvLine = "$inst_name;$best_cost_found;$MH_avg_cost;$MH_avg_time;$MH_GAP;$RVND_avg_cost;$RVND_avg_time;$RVND_GAP;$constr_heur_avg_cost;$constr_heur_avg_time;$constr_heur_GAP"
@@ -88,7 +90,7 @@ foreach ($instance in $instance_names) {
         Add-Content -Path $csvFilePath -Value $csvLine
 
         # Print the results
-        Write-Output "Instance $inst_name finished!"
+        Write-Output "Instance $inst_name finished!`n"
     } else {
         Write-Host "Results section not found in the output for $instance"
     }
