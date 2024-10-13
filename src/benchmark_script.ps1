@@ -1,18 +1,13 @@
 # Define an array with all instance paths
 $instance_names = @(
-    ".\instances\ex_instance.txt",
-    ".\instances\n60A.txt"
-    ".\instances\n60B.txt",
-    ".\instances\n60C.txt"
-    ".\instances\n60D.txt",
-    ".\instances\n60E.txt",
-    ".\instances\n60F.txt",
-    ".\instances\n60G.txt",
-    ".\instances\n60H.txt",
     ".\instances\n60I.txt",
     ".\instances\n60J.txt",
     ".\instances\n60K.txt",
-    ".\instances\n60L.txt"
+    ".\instances\n60L.txt",
+    ".\instances\n60M.txt",
+    ".\instances\n60N.txt",
+    ".\instances\n60O.txt",
+    ".\instances\n60P.txt"
 )
 
 # Define the CSV file path
