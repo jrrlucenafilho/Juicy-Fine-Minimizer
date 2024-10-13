@@ -84,7 +84,7 @@ foreach ($instance in $instance_names) {
         $constr_heur_GAP = (Extract-Value -results $results -pattern "Constructive Heuristic GAP:\s*([\d\.\-]+)") + " %"
 
         # Create a CSV line
-        $csvLine = "$inst_name;$best_cost_found;$MH_avg_cost;$MH_avg_time;$MH_GAP;$RVND_avg_cost;$RVND_avg_time;$RVND_GAP;$constr_heur_avg_cost;$constr_heur_avg_time;$constr_heur_GAP"
+        $csvLine = "$inst_name;$optimal_cost;$best_cost_found;$MH_avg_cost;$MH_avg_time;$MH_GAP;$RVND_avg_cost;$RVND_avg_time;$RVND_GAP;$constr_heur_avg_cost;$constr_heur_avg_time;$constr_heur_GAP"
 
         # Append the CSV line to the file
         Add-Content -Path $csvFilePath -Value $csvLine
