@@ -11,7 +11,7 @@ $instance_names = @(
 )
 
 # Define the CSV file path
-$csvFilePath = ".\benchmark.csv"
+$csvFilePath = ".\benchmark2.csv"
 
 # Write the header to the CSV file
 $header = "instance;optimal_cost;best_cost_found;MH_avg_cost;MH_avg_time;MH_GAP;RVND_avg_cost;RVND_avg_time;RVND_GAP;constr_heur_avg_cost;constr_heur_avg_time;constr_heur_GAP"
