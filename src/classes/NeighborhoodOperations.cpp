@@ -339,7 +339,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
  * @param max max value
  * @return int
  */
-int BoundedRand(int min, int max) { return min + rand() % (max - min); }
+int BoundedRand(int min, int max) { return min + rand() % (max - min + 1); }
 
 /**
  * @brief Disturbs the solution so as to make it not fall into a local best
@@ -350,78 +350,38 @@ int BoundedRand(int min, int max) { return min + rand() % (max - min); }
  * @return disturbed solution
  */
 Solution Disturbance(Instance &instance, Solution &solution) {
+  Solution disturbed_solution;
+  DoublyLinkedList copied_sequence = solution.fruit_order;
   int sequence_size = instance.getQuantityOfRequests();
 
-  // Lengh should vary from 2 to (dimension / 10)
-  int segment_max_length = ceil(instance.getQuantityOfRequests() / 10.0);
+  int32_t begin_reverse_index = rand() % (int)floor(sequence_size / 2);
+  int32_t end_reverse_index =
+      floor(sequence_size / 2) + rand() % (int)ceil(sequence_size / 2);
 
-  // Indexes of subsequences
-  int subseq_1_begin_index, subseq_1_end_index;
-  int subseq_2_begin_index, subseq_2_end_index;
+  Node *begin_reverse_node = nullptr;
+  Node *end_reverse_node = nullptr;
 
-  Node *subseq_1_begin_node = nullptr;
-  Node *subseq_1_end_node = nullptr;
-
-  Node *subseq_2_begin_node = nullptr;
-  Node *subseq_2_end_node = nullptr;
-
-  // First attributing indexes randomly
-  subseq_1_begin_index =
-      BoundedRand(0, sequence_size - segment_max_length - segment_max_length);
-  subseq_1_end_index = BoundedRand(subseq_1_begin_index,
-                                   subseq_1_begin_index + segment_max_length);
-  subseq_2_begin_index =
-      BoundedRand(subseq_1_end_index, sequence_size - segment_max_length);
-  subseq_2_end_index = BoundedRand(subseq_2_begin_index,
-                                   subseq_2_begin_index + segment_max_length);
-
+  Node *it = copied_sequence.front();
   int32_t counter = 0;
-  for (Node *i = solution.fruit_order.front(); i != nullptr; i = i->next) {
-    if (counter == subseq_1_begin_index)
-      subseq_1_begin_node = i;
+  while (it != nullptr) {
+    if (counter == begin_reverse_index) {
+      begin_reverse_node = it;
+    }
 
-    if (counter == subseq_1_end_index)
-      subseq_1_end_node = i;
-
-    if (counter == subseq_2_begin_index)
-      subseq_2_begin_node = i;
-
-    if (counter == subseq_2_end_index)
-      subseq_2_end_node = i;
-
-    if (counter == subseq_2_end_index)
-      break;
+    if (counter == end_reverse_index) {
+      end_reverse_node = it;
+    }
 
     counter++;
+    it = it->next;
   }
 
-  Node *next_from_end_subseq_1 = subseq_1_end_node->next;
-
-  Node *next_from_end_subseq_2 = nullptr;
-
-  if (subseq_2_end_node->next) {
-    next_from_end_subseq_2 = subseq_2_end_node->next;
-  }
-
-  for (Node *i = next_from_end_subseq_1; i != next_from_end_subseq_1;
-       i = i->next) {
-    if (subseq_2_end_node->next) {
-      solution.fruit_order.reinsert_before(next_from_end_subseq_2, i);
-    } else {
-      // Inserting in the tail of the second
-      solution.fruit_order.reinsert_before(subseq_2_begin_node, i);
-    }
-  }
-
-  for (Node *i = next_from_end_subseq_2; i != next_from_end_subseq_2;
-       i = i->next) {
-    solution.fruit_order.reinsert_before(next_from_end_subseq_1, i);
-  }
+  copied_sequence.reverse(begin_reverse_node, end_reverse_node);
 
   // Recalculating fee/cost with disturbed sol
-  solution.recalculateSolution(instance);
+  disturbed_solution.updateSolution(instance, copied_sequence);
 
-  return solution;
+  return disturbed_solution;
 }
 
 // ILS metaheuristic func
@@ -450,6 +410,8 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
 
     int curr_iter_counter_ILS = 0;
 
+    int32_t prev_iter_solution_cost = 0;
+
     while (curr_iter_counter_ILS <= max_iters_ILS) {
       // Do the local search, small modifs to current iteration's solution
       LocalSearchRVND(instance, curr_iter_solution);
@@ -466,8 +428,12 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
         curr_iter_counter_ILS = 0;
       }
 
+      int32_t temp = curr_iter_solution.getSolutionFee();
       // Disturbance to help solution not fall into a local best pitfall
-      curr_iter_solution = Disturbance(instance, curr_best_solution);
+      if (curr_iter_solution.getSolutionFee() == prev_iter_solution_cost)
+        curr_iter_solution = Disturbance(instance, curr_best_solution);
+
+      prev_iter_solution_cost = temp;
       curr_iter_counter_ILS++;
     }
 
