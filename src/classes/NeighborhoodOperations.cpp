@@ -411,7 +411,6 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
                                              // currently the best one
 
     int curr_iter_counter_ILS = 0;
-    int rvnd_counter_for_avg = 1; // To make an avg of all rvnd results and times (ILS counter wouldn't be accurate)
 
     while (curr_iter_counter_ILS <= max_iters_ILS) {
       benchmarker.rvnd_start_time = std::chrono::high_resolution_clock::now();
@@ -439,13 +438,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
       // Disturbance to help solution not fall into a local best pitfall
       curr_iter_solution = Disturbance(instance, curr_best_solution);
       curr_iter_counter_ILS++;
-
-      rvnd_counter_for_avg++; // Used to calc avg since ILS counter can be reset, so it ILS counter wouldn't be accurate
     }
-
-    // Divide by how many times rvnd actually was done
-    benchmarker.rvnd_avg_cost = benchmarker.rvnd_avg_cost / rvnd_counter_for_avg; // Inner avg calcs
-    benchmarker.rvnd_avg_elapsed_time = benchmarker.rvnd_avg_elapsed_time / rvnd_counter_for_avg;
 
     // Now after after 1 full ILS execution (Executing LocalSearchRVND()
     // max_iters_ILS times) Check if it produced a better solution than previous
@@ -455,13 +448,6 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
       best_of_all_solution = curr_best_solution;
     }
   }
-
-  // Divide by max_iters since it was done max_iters times
-  benchmarker.constructive_heuristic_avg_cost /= max_iters;
-  benchmarker.constructive_heuristic_avg_elapsed_time /= max_iters;
-
-  benchmarker.rvnd_avg_cost /= max_iters;
-  benchmarker.rvnd_avg_elapsed_time /= max_iters;
 
   return best_of_all_solution;
 }
