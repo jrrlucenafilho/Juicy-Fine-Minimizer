@@ -136,11 +136,11 @@ TEST(DllTest, ShouldReverseElementsWhenNeeded) {
 
   dll.reverse(position_to_begin, position_to_end);
 
-  ASSERT_EQ(dll.front()->value, 5);
-  ASSERT_EQ(dll.front()->next->value, 4);
-  ASSERT_EQ(dll.front()->next->next->value, 3);
-  ASSERT_EQ(dll.back()->prev->value, 2);
-  ASSERT_EQ(dll.back()->value, 1);
+  ASSERT_EQ(dll.front()->value, 4);
+  ASSERT_EQ(dll.front()->next->value, 3);
+  ASSERT_EQ(dll.front()->next->next->value, 2);
+  ASSERT_EQ(dll.back()->prev->value, 1);
+  ASSERT_EQ(dll.back()->value, 5);
 }
 
 TEST(DllTest, ShouldPopBack) {

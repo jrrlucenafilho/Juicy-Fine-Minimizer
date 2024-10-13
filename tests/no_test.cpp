@@ -126,8 +126,8 @@ TEST(NoTest, ShouldSwapIfCostIsHigherAfterOrOptOperation) {
 
   ASSERT_EQ(solution.fruit_order.front()->value, 3);
   ASSERT_EQ(solution.fruit_order.front()->next->value, 2);
-  ASSERT_EQ(solution.fruit_order.front()->next->next->value, 1);
-  ASSERT_EQ(solution.fruit_order.front()->next->next->next->value, 4);
+  ASSERT_EQ(solution.fruit_order.front()->next->next->value, 4);
+  ASSERT_EQ(solution.fruit_order.front()->next->next->next->value, 1);
   ASSERT_EQ(solution.fruit_order.front()->next->next->next->next->value, 0);
 }
 
@@ -188,9 +188,9 @@ TEST(NoTest, ShouldSwapIfCostIsHigherAfter2OptOperation) {
 
   BestImprovement2Opt(instance, solution);
 
-  ASSERT_EQ(solution.fruit_order.front()->value, 0);
+  ASSERT_EQ(solution.fruit_order.front()->value, 4);
   ASSERT_EQ(solution.fruit_order.front()->next->value, 1);
   ASSERT_EQ(solution.fruit_order.front()->next->next->value, 2);
   ASSERT_EQ(solution.fruit_order.front()->next->next->next->value, 3);
-  ASSERT_EQ(solution.fruit_order.front()->next->next->next->next->value, 4);
+  ASSERT_EQ(solution.fruit_order.front()->next->next->next->next->value, 0);
 }
