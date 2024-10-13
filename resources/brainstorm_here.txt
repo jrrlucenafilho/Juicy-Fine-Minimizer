@@ -15,3 +15,8 @@ Solução:
     tipo_de_fruta (enum);
     elapsed_time = 0;
     valor_da_multa_atual (acumulada);
+
+OPtimizations:
+Fazer opts com lista duplamente encadeada
+buscar como lidar com reverse
+

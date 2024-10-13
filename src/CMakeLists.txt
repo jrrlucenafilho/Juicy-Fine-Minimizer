@@ -5,6 +5,7 @@ add_executable(${PROJECT_NAME} main.cpp
     classes/NeighborhoodOperations.cpp
     classes/DoublyLinkedList.cpp
     classes/Globals.cpp
+    classes/Benchmarker.cpp
 )
 
 # Added include directories

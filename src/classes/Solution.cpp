@@ -1,5 +1,6 @@
 #include "Solution.hpp"
 #include "Instance.hpp"
+#include "Benchmarker.hpp"
 #include <algorithm>
 #include <iostream>
 #include <limits>
@@ -24,6 +25,7 @@ void Solution::createSolution(Instance &instance) {
   if (!instance.isInstanceLoaded()) {
     throw InstanceNotLoadedException();
   }
+
   this->solution_fee = 0;
   this->elapsed_time = 0;
   this->fruit_order.clear();

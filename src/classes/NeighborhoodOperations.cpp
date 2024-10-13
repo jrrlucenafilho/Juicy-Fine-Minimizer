@@ -1,6 +1,7 @@
 #include "NeighborhoodOperations.hpp"
 #include "Globals.hpp"
-#include "vector"
+#include "Benchmarker.hpp"
+#include <vector>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -459,15 +460,30 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
     // First build a viable solution
     Solution curr_best_solution;
 
+    benchmarker.constr_heuristic_start_time = std::chrono::high_resolution_clock::now();
     curr_iter_solution.createSolution(instance);
+    benchmarker.constr_heuristic_end_time = std::chrono::high_resolution_clock::now();
+
+    benchmarker.constructive_heuristic_avg_elapsed_time += (benchmarker.constr_heuristic_end_time 
+                                                         - benchmarker.constr_heuristic_start_time);
+
+    benchmarker.constructive_heuristic_avg_cost += curr_iter_solution.getSolutionFee();
+
     curr_best_solution = curr_iter_solution; // In the beginning, first sol is
                                              // currently the best one
 
     int curr_iter_counter_ILS = 0;
 
     while (curr_iter_counter_ILS <= max_iters_ILS) {
+      benchmarker.rvnd_start_time = std::chrono::high_resolution_clock::now();
+
       // Do the local search, small modifs to current iteration's solution
       LocalSearchRVND(instance, curr_iter_solution);
+
+      benchmarker.rvnd_end_time = std::chrono::high_resolution_clock::now();
+      benchmarker.rvnd_avg_elapsed_time += (benchmarker.rvnd_end_time - benchmarker.rvnd_start_time);
+
+      benchmarker.rvnd_avg_cost += curr_iter_solution.getSolutionFee();
 
       // Compare curr iter's solution post-local-search to current
       // all-ILS-up-to-now execs best solution If it's lower, make it the new
