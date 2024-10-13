@@ -6,8 +6,8 @@
 #ifndef SOLUTION_HPP
 #define SOLUTION_HPP
 
-#include "Instance.hpp"
 #include "DoublyLinkedList.hpp"
+#include "Instance.hpp"
 #include <cmath>
 #include <cstddef>
 #include <exception>
@@ -61,7 +61,7 @@ public:
    * @return The calculated fee value.
    */
   int32_t calculateFeeValue(int32_t fee_per_minute, int32_t conclusion_time,
-                             int32_t delivery_time_limit);
+                            int32_t delivery_time_limit);
 
   /**
    * @brief Get the fee of the solution in float format.
@@ -85,9 +85,8 @@ public:
    * @param new_solution The new vector of fruits representing the path.
    * @param solution_fee The solution fee of the new path
    */
-  void updateSolution(Instance &instance,
-                                DoublyLinkedList new_solution,
-                                float solution_fee);
+  void updateSolution(Instance &instance, DoublyLinkedList new_solution,
+                      float solution_fee);
 
   /**
    * @brief Recalculate the solution based on the current internal path.
@@ -103,8 +102,7 @@ public:
    * @param solution The vector of fruits representing the path.
    * @return The new solution fee.
    */
-  int32_t recalculateSolution(Instance &instance,
-                               DoublyLinkedList &solution);
+  int32_t recalculateSolution(Instance &instance, DoublyLinkedList &solution);
 
   /**
    * @brief Set the solution fee.
@@ -125,6 +123,10 @@ private:
    * @brief The elapsed time of the solution.
    */
   int32_t elapsed_time;
+
+  DoublyLinkedList cached_greedy_solution;
+  int32_t cached_solution_fee;
+  int32_t cached_elapsed_time;
 };
 
 #endif

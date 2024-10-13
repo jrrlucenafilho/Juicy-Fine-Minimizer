@@ -5,6 +5,7 @@ set(SOURCES
   ../src/classes/Solution.cpp
   ../src/classes/NeighborhoodOperations.cpp
   ../src/classes/DoublyLinkedList.cpp
+  ../src/classes/Globals.cpp
 )
 set(INCLUDES ../src/headers)
 

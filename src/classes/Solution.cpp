@@ -14,6 +14,13 @@ Solution::Solution() {
 }
 
 void Solution::createSolution(Instance &instance) {
+  if (this->cached_greedy_solution.size() > 0) {
+    this->fruit_order = this->cached_greedy_solution;
+    this->solution_fee = this->cached_solution_fee;
+    this->elapsed_time = this->cached_elapsed_time;
+    return;
+  }
+
   if (!instance.isInstanceLoaded()) {
     throw InstanceNotLoadedException();
   }
@@ -71,6 +78,10 @@ void Solution::createSolution(Instance &instance) {
     this->solution_fee += 0 > current_max_fee ? 0 : current_max_fee;
     this->elapsed_time = current_elapsed_time;
   }
+
+  this->cached_greedy_solution = this->fruit_order;
+  this->cached_solution_fee = this->solution_fee;
+  this->cached_elapsed_time = this->elapsed_time;
 }
 
 int32_t Solution::calculateFeeValue(int32_t fee_per_minute,

@@ -1,4 +1,5 @@
 #include "NeighborhoodOperations.hpp"
+#include "Globals.hpp"
 #include "vector"
 #include <algorithm>
 #include <cmath>
@@ -355,7 +356,7 @@ Solution Disturbance(Instance &instance, Solution &solution) {
   // DoublyLinkedList copied_sequence = solution.fruit_order;
   int sequence_size = instance.getQuantityOfRequests();
 
-  int32_t max_distance_swap_exchange = sequence_size / 5;
+  int32_t max_distance_swap_exchange = sequence_size / 3;
 
   int32_t first_adj_swap_index = rand() % (sequence_size - 1);
 
@@ -447,11 +448,15 @@ Solution Disturbance(Instance &instance, Solution &solution) {
 Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
                              Instance &instance) {
   Solution best_of_all_solution;
+  Solution curr_iter_solution;
+
+  bool found_first_best_of_all_solution = false;
+  int32_t counter_inside_r = 0;
+
   best_of_all_solution.setSolutionFee(std::numeric_limits<int32_t>::max());
 
   for (int i = 0; i < max_iters; i++) {
     // First build a viable solution
-    Solution curr_iter_solution;
     Solution curr_best_solution;
 
     curr_iter_solution.createSolution(instance);
@@ -481,13 +486,25 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
       curr_iter_counter_ILS++;
     }
 
+    int32_t best_sol_all_fee = best_of_all_solution.getSolutionFee();
+    int32_t best_sol_fee = curr_best_solution.getSolutionFee();
+
+    if (best_sol_fee <= best_sol_all_fee + PARAMETER_R && found_first_best_of_all_solution) {
+      counter_inside_r++;
+    }
+
     // Now after after 1 full ILS execution (Executing LocalSearchRVND()
     // max_iters_ILS times) Check if it produced a better solution than previous
     // ILS execution, attributing if so
-    if (curr_best_solution.getSolutionFee() <
-        best_of_all_solution.getSolutionFee()) {
+    if (best_sol_fee < best_sol_all_fee) {
+      found_first_best_of_all_solution = true;
+      counter_inside_r = 0;
+
       best_of_all_solution = curr_best_solution;
     }
+
+    if (counter_inside_r >= PARAMETER_J)
+      break;
   }
 
   return best_of_all_solution;

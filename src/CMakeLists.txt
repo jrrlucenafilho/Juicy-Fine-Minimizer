@@ -4,6 +4,7 @@ add_executable(${PROJECT_NAME} main.cpp
     classes/Solution.cpp 
     classes/NeighborhoodOperations.cpp
     classes/DoublyLinkedList.cpp
+    classes/Globals.cpp
 )
 
 # Added include directories
