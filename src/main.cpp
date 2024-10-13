@@ -18,7 +18,7 @@ std::string ExtractInstanceName(const std::string& text) {
         return match[1];
     }
 
-    if (text == ".\\instances\\ex_instance.txt"){
+    if (text == "instances\\ex_instance.txt" || text == ".\\instances\\ex_instance.txt"){
       return "ex_instance";
     }
 
