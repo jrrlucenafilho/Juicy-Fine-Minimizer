@@ -8,9 +8,9 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
   if ((argc > 2) || (argc < 2)) {
-    std::cerr << "Wrong input. Please write './main <instance_filepath>'";
-    return 1;
-  }
+     std::cerr << "Wrong input. Please write './main <instance_filepath>'";
+     return 1;
+   }
 
   Instance instance(argv[1]);
   Solution solution;

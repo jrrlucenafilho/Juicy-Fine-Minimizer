@@ -1,6 +1,7 @@
 #include "NeighborhoodOperations.hpp"
 #include "vector"
 #include <algorithm>
+#include <cmath>
 #include <limits>
 
 using namespace std;
@@ -350,36 +351,85 @@ int BoundedRand(int min, int max) { return min + rand() % (max - min + 1); }
  * @return disturbed solution
  */
 Solution Disturbance(Instance &instance, Solution &solution) {
-  Solution disturbed_solution;
-  DoublyLinkedList copied_sequence = solution.fruit_order;
+  Solution disturbed_solution = solution;
+  // DoublyLinkedList copied_sequence = solution.fruit_order;
   int sequence_size = instance.getQuantityOfRequests();
 
-  int32_t begin_reverse_index = rand() % (int)floor(sequence_size / 2);
-  int32_t end_reverse_index =
-      floor(sequence_size / 2) + rand() % (int)ceil(sequence_size / 2);
+  int32_t max_distance_swap_exchange = sequence_size / 5;
 
-  Node *begin_reverse_node = nullptr;
-  Node *end_reverse_node = nullptr;
+  int32_t first_adj_swap_index = rand() % (sequence_size - 1);
 
-  Node *it = copied_sequence.front();
+  int32_t second_adj_swap_index;
+  while (true) {
+    second_adj_swap_index = rand() % (sequence_size - 1);
+
+    if (second_adj_swap_index == first_adj_swap_index ||
+        second_adj_swap_index == first_adj_swap_index + 1 ||
+        second_adj_swap_index == first_adj_swap_index - 1) {
+      second_adj_swap_index = rand() % (sequence_size - 1);
+    } else {
+      break;
+    }
+  }
+
+  int32_t first_exchange_swap_index = rand() % (sequence_size - 1);
+
+  int32_t second_exchange_swap_index = 0;
+  while (true) {
+    int32_t second_exchange_swap_index =
+        (first_exchange_swap_index - max_distance_swap_exchange) +
+        rand() % (first_exchange_swap_index + max_distance_swap_exchange);
+
+    if (second_exchange_swap_index != first_exchange_swap_index) {
+      break;
+    }
+  }
+
+  Node *first_adj_swap_node = nullptr;
+  Node *second_adj_swap_node = nullptr;
+
+  Node *first_exchange_swap_node = nullptr;
+  Node *second_exchange_swap_node = nullptr;
+
+  Node *it = disturbed_solution.fruit_order.front();
   int32_t counter = 0;
   while (it != nullptr) {
-    if (counter == begin_reverse_index) {
-      begin_reverse_node = it;
+    if (counter == first_adj_swap_index) {
+      first_adj_swap_node = it;
     }
 
-    if (counter == end_reverse_index) {
-      end_reverse_node = it;
+    if (counter == second_adj_swap_index) {
+      second_adj_swap_node = it;
+    }
+
+    if (counter == first_exchange_swap_index) {
+      first_exchange_swap_node = it;
+    }
+
+    if (counter == second_exchange_swap_index) {
+      second_exchange_swap_node = it;
+    }
+
+    if (first_adj_swap_node != nullptr && second_adj_swap_node != nullptr &&
+        first_exchange_swap_node != nullptr &&
+        second_exchange_swap_node != nullptr) {
+      break;
     }
 
     counter++;
     it = it->next;
   }
 
-  copied_sequence.reverse(begin_reverse_node, end_reverse_node);
+  disturbed_solution.fruit_order.swap(first_adj_swap_node,
+                                      first_adj_swap_node->next);
+  disturbed_solution.fruit_order.swap(second_adj_swap_node,
+                                      second_adj_swap_node->next);
+
+  disturbed_solution.fruit_order.swap(first_exchange_swap_node,
+                                      second_exchange_swap_node);
 
   // Recalculating fee/cost with disturbed sol
-  disturbed_solution.updateSolution(instance, copied_sequence);
+  disturbed_solution.recalculateSolution(instance);
 
   return disturbed_solution;
 }
@@ -410,8 +460,6 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
 
     int curr_iter_counter_ILS = 0;
 
-    int32_t prev_iter_solution_cost = 0;
-
     while (curr_iter_counter_ILS <= max_iters_ILS) {
       // Do the local search, small modifs to current iteration's solution
       LocalSearchRVND(instance, curr_iter_solution);
@@ -428,12 +476,8 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
         curr_iter_counter_ILS = 0;
       }
 
-      int32_t temp = curr_iter_solution.getSolutionFee();
       // Disturbance to help solution not fall into a local best pitfall
-      if (curr_iter_solution.getSolutionFee() == prev_iter_solution_cost)
-        curr_iter_solution = Disturbance(instance, curr_best_solution);
-
-      prev_iter_solution_cost = temp;
+      curr_iter_solution = Disturbance(instance, curr_best_solution);
       curr_iter_counter_ILS++;
     }
 
