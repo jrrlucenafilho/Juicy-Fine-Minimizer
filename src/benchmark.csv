@@ -1,0 +1,2 @@
+instance;optimal_cost;best_cost_found;MH_avg_cost;MH_avg_time;MH_GAP;RVND_avg_cost;RVND_avg_time;RVND_GAP;constr_heur_avg_cost;constr_heur_avg_time;constr_heur_GAP
+ex_instance;360;360;360;0.0985965 s;0 %;198000;0.0980291 s;54900 %;18000;7.916e-05 s;4900 %
