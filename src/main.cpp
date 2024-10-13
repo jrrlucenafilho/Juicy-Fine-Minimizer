@@ -18,6 +18,10 @@ std::string ExtractInstanceName(const std::string& text) {
         return match[1];
     }
 
+    if (text == ".\\instances\\ex_instance.txt"){
+      return "ex_instance";
+    }
+
     return "";
 }
 
@@ -49,6 +53,7 @@ int main(int argc, char *argv[]) {
   }
 
   std::map<std::string, int32_t> optimal_values_map = {
+      {"ex_instance", 360},
       {"n60A", 453},
       {"n60B", 1757},
       {"n60C", 0},
