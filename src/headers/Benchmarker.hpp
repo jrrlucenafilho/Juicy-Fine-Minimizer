@@ -93,7 +93,7 @@ struct benchmarker_t {
     for (Node *i = best_solution_sequence.front(); i != nullptr; i = i->next) {
       std::cout << i->value;
 
-      if (i != best_solution_sequence.back()->prev) {
+      if (i != best_solution_sequence.back()) {
         std::cout << ", ";
       }
     }

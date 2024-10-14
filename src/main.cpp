@@ -39,7 +39,7 @@ void PrintCurrentIteration(int iteration,
   for (Node *i = curr_solution_sequence.front(); i != nullptr; i = i->next) {
     std::cout << i->value;
 
-    if (i != curr_solution_sequence.back()->prev) {
+    if (i != curr_solution_sequence.back()) {
       std::cout << ", ";
     }
   }
