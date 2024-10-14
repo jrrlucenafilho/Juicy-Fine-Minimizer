@@ -113,6 +113,8 @@ public:
 
   void setSequence(DoublyLinkedList new_sequence);
 
+  void operator=(const Solution &sol);
+
 private:
   /**
    * @brief The total fee of the solution.

@@ -1,10 +1,10 @@
 #include "NeighborhoodOperations.hpp"
-#include "Globals.hpp"
 #include "Benchmarker.hpp"
-#include <vector>
+#include "Globals.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <vector>
 
 using namespace std;
 
@@ -12,6 +12,7 @@ using namespace std;
 bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
   bool optimized = false;
   int32_t curr_solution_fee = curr_solution.getSolutionFee();
+  int32_t initial_solution_fee = curr_solution_fee;
   int32_t new_solution_fee;
 
   Node *first_index_swap = 0;
@@ -40,9 +41,13 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
 
   if (first_index_swap != last_index_swap && optimized) {
     curr_solution.fruit_order.swap(first_index_swap, last_index_swap);
+
+    curr_solution.setSolutionFee(best_solution_fee);
+
+    return optimized;
   }
 
-  curr_solution.setSolutionFee(best_solution_fee);
+  curr_solution.setSolutionFee(initial_solution_fee);
 
   return optimized;
 }
@@ -54,6 +59,8 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   Node *index_to_reinsert = nullptr;
 
   int32_t curr_solution_fee = curr_solution.getSolutionFee();
+
+  int32_t initial_solution_fee = curr_solution_fee;
 
   int32_t optimum_solution_fee = curr_solution_fee;
 
@@ -90,9 +97,12 @@ bool BestImprovementOrOpt(Instance &instance, Solution &curr_solution) {
   if (index_to_remove != index_to_reinsert && optimized) {
     curr_solution.fruit_order.reinsert_before(index_to_reinsert,
                                               index_to_remove);
+    curr_solution.setSolutionFee(optimum_solution_fee);
+
+    return optimized;
   }
 
-  curr_solution.setSolutionFee(optimum_solution_fee);
+  curr_solution.setSolutionFee(initial_solution_fee);
 
   return optimized;
 }
@@ -159,7 +169,7 @@ bool BestImprovementOrOpt2(Instance &instance, Solution &solution) {
     return true;
   }
 
-  solution.setSolutionFee(best_cost);
+  solution.setSolutionFee(initial_cost);
 
   return false;
 }
@@ -231,7 +241,7 @@ bool BestImprovementOrOpt3(Instance &instance, Solution &solution) {
     return true;
   }
 
-  solution.setSolutionFee(best_cost);
+  solution.setSolutionFee(initial_cost);
 
   return false;
 }
@@ -284,7 +294,7 @@ bool BestImprovement2Opt(Instance &instance, Solution &solution) {
     return true;
   }
 
-  solution.setSolutionFee(best_cost);
+  solution.setSolutionFee(first_cost);
 
   return false;
 }
@@ -353,7 +363,10 @@ int BoundedRand(int min, int max) { return min + rand() % (max - min + 1); }
  * @return disturbed solution
  */
 Solution Disturbance(Instance &instance, Solution &solution) {
-  Solution disturbed_solution = solution;
+  // Solution disturbed_solution = solution;
+  Solution disturbed_solution;
+  disturbed_solution.setSequence(solution.fruit_order);
+  disturbed_solution = solution;
   // DoublyLinkedList copied_sequence = solution.fruit_order;
   int sequence_size = instance.getQuantityOfRequests();
 
@@ -460,14 +473,18 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
     // First build a viable solution
     Solution curr_best_solution;
 
-    benchmarker.constr_heuristic_start_time = std::chrono::high_resolution_clock::now();
+    benchmarker.constr_heuristic_start_time =
+        std::chrono::high_resolution_clock::now();
     curr_iter_solution.createSolution(instance);
-    benchmarker.constr_heuristic_end_time = std::chrono::high_resolution_clock::now();
+    benchmarker.constr_heuristic_end_time =
+        std::chrono::high_resolution_clock::now();
 
-    benchmarker.constructive_heuristic_avg_elapsed_time += (benchmarker.constr_heuristic_end_time 
-                                                         - benchmarker.constr_heuristic_start_time);
+    benchmarker.constructive_heuristic_avg_elapsed_time +=
+        (benchmarker.constr_heuristic_end_time -
+         benchmarker.constr_heuristic_start_time);
 
-    benchmarker.constructive_heuristic_avg_cost += curr_iter_solution.getSolutionFee();
+    benchmarker.constructive_heuristic_avg_cost +=
+        curr_iter_solution.getSolutionFee();
 
     curr_best_solution = curr_iter_solution; // In the beginning, first sol is
                                              // currently the best one
@@ -481,7 +498,8 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
       LocalSearchRVND(instance, curr_iter_solution);
 
       benchmarker.rvnd_end_time = std::chrono::high_resolution_clock::now();
-      benchmarker.rvnd_avg_elapsed_time += (benchmarker.rvnd_end_time - benchmarker.rvnd_start_time);
+      benchmarker.rvnd_avg_elapsed_time +=
+          (benchmarker.rvnd_end_time - benchmarker.rvnd_start_time);
 
       benchmarker.rvnd_avg_cost += curr_iter_solution.getSolutionFee();
 
@@ -505,7 +523,8 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
     int32_t best_sol_all_fee = best_of_all_solution.getSolutionFee();
     int32_t best_sol_fee = curr_best_solution.getSolutionFee();
 
-    if (best_sol_fee <= best_sol_all_fee + PARAMETER_R && found_first_best_of_all_solution) {
+    if (best_sol_fee <= best_sol_all_fee + PARAMETER_R &&
+        found_first_best_of_all_solution) {
       counter_inside_r++;
     }
 

@@ -109,6 +109,7 @@ int main(int argc, char *argv[]) {
     }
 
     PrintCurrentIteration(i, solution.fruit_order, solution.getSolutionFee());
+    // std::cout << solution.recalculateSolution(instance, solution.fruit_order) << "\n";
   }
 
   benchmarker.printResults(instance_name, optimal_values_map[instance_name]);

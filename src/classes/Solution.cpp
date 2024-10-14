@@ -1,6 +1,6 @@
 #include "Solution.hpp"
-#include "Instance.hpp"
 #include "Benchmarker.hpp"
+#include "Instance.hpp"
 #include <algorithm>
 #include <iostream>
 #include <limits>
@@ -184,4 +184,15 @@ void Solution::setSolutionFee(int32_t new_fee) { this->solution_fee = new_fee; }
 
 void Solution::setSequence(DoublyLinkedList new_sequence) {
   this->fruit_order = new_sequence;
+}
+
+void Solution::operator=(const Solution &sol) {
+  this->fruit_order = sol.fruit_order;
+
+  this->solution_fee = sol.solution_fee;
+  this->elapsed_time = sol.elapsed_time;
+
+  this->cached_greedy_solution = sol.cached_greedy_solution;
+  this->cached_solution_fee = sol.cached_solution_fee;
+  this->cached_elapsed_time = sol.cached_elapsed_time;
 }
