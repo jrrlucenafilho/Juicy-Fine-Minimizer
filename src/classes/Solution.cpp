@@ -120,20 +120,20 @@ void Solution::recalculateSolution(Instance &instance) {
 
     if (i == this->fruit_order.front()) {
       current_solution_fee +=
-          calculateFeeValue(instance.getLateFee(i->value),
+          std::max(0, calculateFeeValue(instance.getLateFee(i->value),
                             instance.getProductionTime(i->value) +
                                 instance.getTransitionTime(0, i->value),
-                            instance.getDeliveryTimeLimit(i->value));
+                            instance.getDeliveryTimeLimit(i->value)));
 
       this->elapsed_time = instance.getProductionTime(i->value) +
                            instance.getTransitionTime(0, i->value);
     } else {
-      current_solution_fee += calculateFeeValue(
+      current_solution_fee += std::max(0, calculateFeeValue(
           instance.getLateFee(i->value),
           instance.getProductionTime(i->value) +
               instance.getTransitionTime(i->prev->value + 1, i->value) +
               this->elapsed_time,
-          instance.getDeliveryTimeLimit(i->value));
+          instance.getDeliveryTimeLimit(i->value)));
 
       this->elapsed_time +=
           instance.getProductionTime(i->value) +
@@ -155,20 +155,20 @@ int32_t Solution::recalculateSolution(Instance &instance,
 
     if (i == solution.front()) {
       current_solution_fee +=
-          calculateFeeValue(instance.getLateFee(i->value),
+          std::max(0, calculateFeeValue(instance.getLateFee(i->value),
                             instance.getProductionTime(i->value) +
                                 instance.getTransitionTime(0, i->value),
-                            instance.getDeliveryTimeLimit(i->value));
+                            instance.getDeliveryTimeLimit(i->value)));
 
       elapsed_time = instance.getProductionTime(i->value) +
                      instance.getTransitionTime(0, i->value);
     } else {
-      current_solution_fee += calculateFeeValue(
+      current_solution_fee += std::max(0, calculateFeeValue(
           instance.getLateFee(i->value),
           instance.getProductionTime(i->value) +
               instance.getTransitionTime(i->prev->value + 1, i->value) +
               elapsed_time,
-          instance.getDeliveryTimeLimit(i->value));
+          instance.getDeliveryTimeLimit(i->value)));
 
       elapsed_time += instance.getProductionTime(i->value) +
                       instance.getTransitionTime(i->prev->value + 1, i->value);
