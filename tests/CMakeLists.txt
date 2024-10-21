@@ -4,6 +4,7 @@ set(SOURCES
   ../src/classes/Instance.cpp
   ../src/classes/Solution.cpp
   ../src/classes/NeighborhoodOperations.cpp
+  ../src/classes/Benchmarker.cpp
 )
 set(INCLUDES ../src/headers)
 

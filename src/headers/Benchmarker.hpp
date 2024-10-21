@@ -81,4 +81,6 @@ struct benchmarker_t {
     }
 };
 
+extern benchmarker_t benchmarker;
+
 #endif

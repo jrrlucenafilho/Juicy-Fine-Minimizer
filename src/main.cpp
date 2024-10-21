@@ -44,8 +44,6 @@ void PrintCurrentIteration(int iteration, const vector<size_t>& curr_solution_se
   std::cout << "============================================================================\n";
 }
 
-benchmarker_t benchmarker;
-
 int main(int argc, char *argv[]) {
   if ((argc > 2) || (argc < 2)) {
     std::cerr << "Wrong input. Please write './main <instance_filepath>'";

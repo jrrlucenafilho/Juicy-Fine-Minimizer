@@ -5,8 +5,6 @@
 #include <iostream>
 #include <limits>
 
-extern benchmarker_t benchmarker;
-
 const char *InstanceNotLoadedException::what() {
   return "Instance is not loaded!";
 }
@@ -112,22 +110,22 @@ void Solution::recalculateSolution(Instance &instance) {
     current_solution_fee = this->solution_fee;
 
     if (i == 0) {
-      current_solution_fee += calculateFeeValue(
+      current_solution_fee += std::max(0, calculateFeeValue(
           instance.getLateFee(this->fruit_order[0]),
           instance.getProductionTime(this->fruit_order[0]) +
               instance.getTransitionTime(0, this->fruit_order[0]),
-          instance.getDeliveryTimeLimit(this->fruit_order[0]));
+          instance.getDeliveryTimeLimit(this->fruit_order[0])));
 
       this->elapsed_time = instance.getProductionTime(this->fruit_order[0]) +
                             instance.getTransitionTime(0, this->fruit_order[0]);
     } else {
-      current_solution_fee += calculateFeeValue(
+      current_solution_fee += std::max(0, calculateFeeValue(
           instance.getLateFee(this->fruit_order[i]),
           instance.getProductionTime(fruit_order[i]) +
               instance.getTransitionTime(this->fruit_order[i - 1] + 1,
                                          this->fruit_order[i]) +
               this->elapsed_time,
-          instance.getDeliveryTimeLimit(this->fruit_order[i]));
+          instance.getDeliveryTimeLimit(this->fruit_order[i])));
 
       this->elapsed_time +=
           instance.getProductionTime(this->fruit_order[i]) +
@@ -150,20 +148,20 @@ int32_t Solution::recalculateSolution(Instance &instance,
 
     if (i == 0) {
       current_solution_fee +=
-          calculateFeeValue(instance.getLateFee(solution[0]),
+          std::max(0, calculateFeeValue(instance.getLateFee(solution[0]),
                             instance.getProductionTime(solution[0]) +
                                 instance.getTransitionTime(0, solution[0]),
-                            instance.getDeliveryTimeLimit(solution[0]));
+                            instance.getDeliveryTimeLimit(solution[0])));
 
       elapsed_time = instance.getProductionTime(solution[0]) +
                            instance.getTransitionTime(0, solution[0]);
     } else {
-      current_solution_fee += calculateFeeValue(
+      current_solution_fee += std::max(0, calculateFeeValue(
           instance.getLateFee(solution[i]),
           instance.getProductionTime(solution[i]) +
               instance.getTransitionTime(solution[i - 1] + 1, solution[i]) +
               elapsed_time,
-          instance.getDeliveryTimeLimit(solution[i]));
+          instance.getDeliveryTimeLimit(solution[i])));
 
       elapsed_time +=
           instance.getProductionTime(solution[i]) +

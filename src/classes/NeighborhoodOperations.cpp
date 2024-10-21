@@ -6,8 +6,6 @@
 
 using namespace std;
 
-extern benchmarker_t benchmarker;
-
 // Neighborhood structures best improvement calc
 bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
   bool optimized = false;
@@ -317,7 +315,7 @@ void LocalSearchRVND(Instance &instance, Solution &curr_solution) {
  * @brief Returns a radnom value inbetween min and max
  * @param min min value
  * @param max max value
- * @return int 
+ * @return int
  */
 int BoundedRand(int min, int max)
 {
@@ -402,7 +400,7 @@ Solution IteratedLocalSearch(int max_iters, int max_iters_ILS,
     curr_iter_solution.createSolution(instance);
     benchmarker.constr_heuristic_end_time = std::chrono::high_resolution_clock::now();
 
-    benchmarker.constructive_heuristic_avg_elapsed_time += (benchmarker.constr_heuristic_end_time 
+    benchmarker.constructive_heuristic_avg_elapsed_time += (benchmarker.constr_heuristic_end_time
                                                          - benchmarker.constr_heuristic_start_time);
 
     benchmarker.constructive_heuristic_avg_cost += curr_iter_solution.getSolutionFee();
