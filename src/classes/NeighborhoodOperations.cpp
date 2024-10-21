@@ -31,11 +31,11 @@ bool BestImprovementSwap(Instance &instance, Solution &curr_solution) {
 
         optimized = true;
       }
-
+      //Undo swap to avoid copying the array
       std::swap(curr_solution.fruit_order[i], curr_solution.fruit_order[j]);
     }
   }
-
+  //Final swap after choosing the 2 best elements for the solution
   if (first_index_swap != last_index_swap) {
     std::swap(curr_solution.fruit_order[first_index_swap], curr_solution.fruit_order[last_index_swap]);
     curr_solution.setSolutionFee(best_solution_fee);
